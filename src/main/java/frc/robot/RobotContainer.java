@@ -59,14 +59,6 @@ public class RobotContainer {
 
 	public final Drivetrain drivetrain = TunerConstants.DriveTrain;
 	public final RobotState robotState = RobotState.getInstance();
-	//public final ClimberJoint climberJoint = new ClimberJoint();
-	//public final ElevatorJoint elevatorJoint = new ElevatorJoint();
-	//public final ElevatorRollers elevatorRollers = new ElevatorRollers();
-	//public final IntakeJoint intakeJoint = new IntakeJoint();
-	//public final IntakeRollers intakeRollers = new IntakeRollers();
-	//public final ShooterJoint shooterJoint = new ShooterJoint();
-	//public final ShooterRollers shooterRollers = new ShooterRollers();
-	//public final YSplitRollers ySplitRollers = new YSplitRollers();
 
 	/* AdvantageKit Setup */
 	public ShooterRollers shooterRollers;
@@ -78,49 +70,12 @@ public class RobotContainer {
 	private final CommandXboxController joystick = new CommandXboxController(0);
 	private final GenericHID rumble = joystick.getHID();
 
-	//Lasercan sensors in YSplitRollers to determine note location 
-	private final LaserCanSensor lc1 = new LaserCanSensor(SensorConstants.ID_LC1);
-	private final LaserCanSensor lc2 = new LaserCanSensor(SensorConstants.ID_LC2);
-	private Trigger LC1 = new Trigger(() -> lc1.isClose());
-	private Trigger LC2 = new Trigger(() -> lc2.isClose());
-
-
-	//Beam Break sensor in the ElevatorRollers to determine note location
-	private final DigitalInput bb1 = new DigitalInput(SensorConstants.PORT_BB1);
-	private final Debouncer ampDebouncer = new Debouncer(.25, DebounceType.kBoth);
-	private Trigger BB1 = new Trigger(() -> !bb1.get());
-
 	//Photonvision and Limelight cameras
 	//PhotonVision photonVision = new PhotonVision(drivetrain,0);
 	PhotonGreece photonGreece = new PhotonGreece(drivetrain);
 	Limelight limelight = new Limelight();
 
-
-    
-	private Trigger noteStored = new Trigger(() -> (lc1.isClose() || lc2.isClose())); //Note in YSplitRollers trigger
-	private Trigger noteAmp = new Trigger(() -> ampDebouncer.calculate(!bb1.get())); //Note in ElevatorRollers
-
-
-	private Debouncer notMovingDebouncer = new Debouncer(0.5,DebounceType.kRising);
-	private Trigger notMoving = new Trigger(() -> notMovingDebouncer.calculate(drivetrain.getCurrentRobotChassisSpeeds().vxMetersPerSecond < .1));
-	
-
-	private Trigger scoreRequested = joystick.rightTrigger(); //Binding right trigger to request scoring
-	
-	//Climbing Triggers
-	private boolean climbRequested = false; //Whether or not a climb request is active
-	private Trigger climbRequest = new Trigger(() -> climbRequested); //Trigger for climb request
-	private int climbStep = 0; //Tracking what step in the climb sequence we are on
-
-	//Triggers for each step of the climb sequence
-	private Trigger climbStep0 = new Trigger(() -> climbStep == 0);
-	private Trigger climbStep1 = new Trigger(() -> climbStep == 1);
-	private Trigger climbStep2 = new Trigger(() -> climbStep == 2);
-	private Trigger climbStep3 = new Trigger(() -> climbStep >= 3);
-
 	private SendableChooser<Command> autoChooser;
-
-
 
 	private final Telemetry logger = new Telemetry(Constants.DriveConstants.MaxSpeed);
 
@@ -172,7 +127,6 @@ public class RobotContainer {
 		}
 		
 		configureBindings();
-		configureDebugCommands();
 		registerNamedCommands();
 		autoChooser = AutoBuilder.buildAutoChooser();
 		SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -184,43 +138,14 @@ public class RobotContainer {
 
 		drivetrain.registerTelemetry(logger::telemeterize);
 
-		// Intake
-
 	}
 
 	private void registerNamedCommands() {
 
-
-		/* NamedCommands.registerCommand("Shooting Command",
-				Commands.race(
-						Commands.waitSeconds(1),
-						Commands.waitUntil(readyToShoot)
-								.andThen(Commands.deadline(
-										Commands.waitUntil(LC2.negate()),
-										ySplitRollers.setStateCommand(YSplitRollers.State.SHOOTER))))); */
-
-		
 	}
 
-	private void configureDebugCommands() {
-		SmartDashboard.putData("Intake Eject",Commands.parallel(intakeRollers.setStateCommand(IntakeRollers.State.EJECT)));
-		SmartDashboard.putData("Intake Deploy",Commands.parallel(intakeJoint.setStateCommand(IntakeJoint.State.INTAKE)));
-        SmartDashboard.putData("Intake Homing",Commands.parallel(intakeJoint.setStateCommand(IntakeJoint.State.HOMING)));
-        SmartDashboard.putData("Climber Homing",Commands.parallel(climberJoint.setStateCommand(ClimberJoint.State.HOMING)));
-
-		SmartDashboard.putData("Shooter Roller Speed TUNING",Commands.parallel(shooterRollers.setStateCommand(ShooterRollers.State.TUNING)));
-
-		SmartDashboard.putData("Reset Climber Index",Commands.runOnce(() -> climbStep = 0));
-	}
 
     public void displaySystemInfo() {
-        SmartDashboard.putBoolean("Beam Break 1", BB1.getAsBoolean());
-		SmartDashboard.putBoolean("Lasercan 1", LC1.getAsBoolean());
-		SmartDashboard.putBoolean("Lasercan 2", LC2.getAsBoolean());
-        SmartDashboard.putBoolean("Note in Tower", noteStored.getAsBoolean());
-		SmartDashboard.putBoolean("Climb Requested", climbRequest.getAsBoolean());
-		SmartDashboard.putNumber("Climb Step", climbStep);
-		SmartDashboard.putBoolean("Not Moving Trigger", notMoving.getAsBoolean());
     }
 
 	public Command getAutonomousCommand() {
