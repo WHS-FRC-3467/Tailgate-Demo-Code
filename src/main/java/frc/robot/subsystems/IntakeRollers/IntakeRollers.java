@@ -26,6 +26,7 @@ public class IntakeRollers extends SubsystemBase {
     public enum State {
         OFF(0.0),
         INTAKE(1.0),
+        SLOW(0.25),
         EJECT(-0.3);
 
         private final double output;

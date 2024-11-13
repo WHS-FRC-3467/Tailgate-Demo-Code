@@ -29,7 +29,7 @@ public class IntakeRollersIOKrakenFOC implements IntakeRollersIO{
 
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
 
-        m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         m_configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         m_configuration.Voltage.PeakForwardVoltage = 12.0;
         m_configuration.Voltage.PeakReverseVoltage = -12.0;
