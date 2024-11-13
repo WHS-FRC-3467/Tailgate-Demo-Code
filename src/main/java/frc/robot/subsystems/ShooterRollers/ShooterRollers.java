@@ -29,11 +29,10 @@ public class ShooterRollers extends SubsystemBase {
     @Getter
     public enum State { // RPS
         OFF(() -> 0.0),
-        PASSTHROUGH(() -> 10.0), // Poop & Scoot
-        SUBWOOFER(() -> 35.0),
-        SPEAKER(() -> 45.0), // Default
-        FEED(() -> 22.0),
-        REVERSE(() -> -20.0), // Hopefully never have to use this irl
+        LAUNCHPAD(() -> 2330/60),
+        TARMAC(() -> 2125/60),
+        UPPERHUB(() -> 1960/60),
+        LOWERHUB(() -> 975/60),
         TUNING(() -> RobotState.getInstance().getShooterTuningSpeed().get());
 
         private final DoubleSupplier velocitySupplier;

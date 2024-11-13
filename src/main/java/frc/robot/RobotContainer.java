@@ -205,14 +205,9 @@ public class RobotContainer {
 	private void configureDebugCommands() {
 		SmartDashboard.putData("Intake Eject",Commands.parallel(intakeRollers.setStateCommand(IntakeRollers.State.EJECT)));
 		SmartDashboard.putData("Intake Deploy",Commands.parallel(intakeJoint.setStateCommand(IntakeJoint.State.INTAKE)));
-		SmartDashboard.putData("Shooter Eject",Commands.parallel(shooterRollers.setStateCommand(ShooterRollers.State.REVERSE)));
         SmartDashboard.putData("Intake Homing",Commands.parallel(intakeJoint.setStateCommand(IntakeJoint.State.HOMING)));
         SmartDashboard.putData("Climber Homing",Commands.parallel(climberJoint.setStateCommand(ClimberJoint.State.HOMING)));
 
-		SmartDashboard.putData("Shooter Roller Speaker",
-				Commands.parallel(shooterRollers.setStateCommand(ShooterRollers.State.SPEAKER),
-						robotState.setTargetCommand(TARGET.SPEAKER)));
-        SmartDashboard.putData("Shooter Roller Sub",Commands.parallel(shooterRollers.setStateCommand(ShooterRollers.State.SUBWOOFER)));
 		SmartDashboard.putData("Shooter Roller Speed TUNING",Commands.parallel(shooterRollers.setStateCommand(ShooterRollers.State.TUNING)));
 
 		SmartDashboard.putData("Reset Climber Index",Commands.runOnce(() -> climbStep = 0));
@@ -222,8 +217,7 @@ public class RobotContainer {
         SmartDashboard.putBoolean("Beam Break 1", BB1.getAsBoolean());
 		SmartDashboard.putBoolean("Lasercan 1", LC1.getAsBoolean());
 		SmartDashboard.putBoolean("Lasercan 2", LC2.getAsBoolean());
-        SmartDashboard.putBoolean("Note in YSplit", noteStored.getAsBoolean());
-        SmartDashboard.putBoolean("Note in Amp", noteAmp.getAsBoolean());
+        SmartDashboard.putBoolean("Note in Tower", noteStored.getAsBoolean());
 		SmartDashboard.putBoolean("Climb Requested", climbRequest.getAsBoolean());
 		SmartDashboard.putNumber("Climb Step", climbStep);
 		SmartDashboard.putBoolean("Not Moving Trigger", notMoving.getAsBoolean());
