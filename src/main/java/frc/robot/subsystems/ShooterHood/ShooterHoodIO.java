@@ -1,11 +1,11 @@
-package frc.robot.subsystems.ShooterJoint;
+package frc.robot.subsystems.ShooterHood;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 
-public interface ShooterJointIO {
+public interface ShooterHoodIO {
     // MJW: IO Layering 11/11/2024
     @AutoLog
     class ShooterJointIOInputs {

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.ShooterJoint;
+package frc.robot.subsystems.ShooterHood;
 
 import java.util.Set;
 
@@ -19,9 +19,9 @@ import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.util.Units;
 
-import frc.robot.Constants.ShooterJointConstants;
+import frc.robot.Constants.ShooterHoodConstants;
 
-public class ShooterJointIOKrakenFOC implements ShooterJointIO{
+public class ShooterHoodIOKrakenFOC implements ShooterHoodIO{
     // Hardware
     private final TalonFX m_motor;
     private final CANcoder m_encoder;
@@ -41,9 +41,9 @@ public class ShooterJointIOKrakenFOC implements ShooterJointIO{
     private final NeutralOut m_neutral = new NeutralOut().withUpdateFreqHz(0.0); //Line 51
     private final VoltageOut voltageControl = new VoltageOut(0).withUpdateFreqHz(0.0);
 
-    public ShooterJointIOKrakenFOC() {
-        m_motor = new TalonFX(ShooterJointConstants.ID_MOTOR);
-        m_encoder = new CANcoder(ShooterJointConstants.ID_ENCODER);
+    public ShooterHoodIOKrakenFOC() {
+        m_motor = new TalonFX(ShooterHoodConstants.ID_MOTOR);
+        m_encoder = new CANcoder(ShooterHoodConstants.ID_ENCODER);
 
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
 

@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.ShooterJoint;
+package frc.robot.subsystems.ShooterHood;
 
 import java.util.function.DoubleSupplier;
 
@@ -20,17 +20,17 @@ import frc.robot.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ShooterJointConstants;
+import frc.robot.Constants.ShooterHoodConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-public class ShooterJoint extends SubsystemBase {
+public class ShooterHood extends SubsystemBase {
 
     @RequiredArgsConstructor
     @Getter
     public enum State {
-        STOW(() -> 35.0),
+        STOW(() -> 0.0),
         SUBWOOFER(() -> 42.0),
         CLIMBCLEARANCE(() -> 40.0),
         DYNAMIC(() -> RobotState.getInstance().getShotAngle()),
@@ -49,26 +49,26 @@ public class ShooterJoint extends SubsystemBase {
 
     private Debouncer m_debounce = new Debouncer(.1);
 
-    //TalonFX m_motor = new TalonFX(ShooterJointConstants.ID_MOTOR);
-    //CANcoder m_encoder = new CANcoder(ShooterJointConstants.ID_ENCODER); // Not sure what to do with Absolute Encoder
+    //TalonFX m_motor = new TalonFX(ShooterHoodConstants.ID_MOTOR);
+    //CANcoder m_encoder = new CANcoder(ShooterHoodConstants.ID_ENCODER); // Not sure what to do with Absolute Encoder
 
     private final static MotionMagicVoltage m_magic = new MotionMagicVoltage(0);
     private final static PositionVoltage m_position = new PositionVoltage(0);
     // private final NeutralOut m_neutral = new NeutralOut();
 
-    private final ShooterJointIO io;
+    private final ShooterHoodIO io;
     private final ShooterJointIOInputsAutoLogged inputs = new ShooterJointIOInputsAutoLogged();
 
-    public ShooterJoint(ShooterJointIO io) {
+    public ShooterHood(ShooterHoodIO io) {
         this.io = io;
-        //m_encoder.getConfigurator().apply(ShooterJointConstants.encoderConfig());
-        //m_motor.getConfigurator().apply(ShooterJointConstants.motorConfig());
+        //m_encoder.getConfigurator().apply(ShooterHoodConstants.encoderConfig());
+        //m_motor.getConfigurator().apply(ShooterHoodConstants.motorConfig());
     }
 
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("ShooterJoint", inputs);
+        Logger.processInputs("ShooterHood", inputs);
         if (state == State.DYNAMIC) {
             //m_motor.setControl(m_position.withPosition(state.getStateOutput()).withSlot(0));
             io.setPosition(m_position.withPosition(state.getStateOutput()).withSlot(0));
@@ -82,7 +82,7 @@ public class ShooterJoint extends SubsystemBase {
     }
 
     public boolean atGoal() {
-        return m_debounce.calculate(MathUtil.isNear(state.getStateOutput(), inputs.position, ShooterJointConstants.tolerance));
+        return m_debounce.calculate(MathUtil.isNear(state.getStateOutput(), inputs.position, ShooterHoodConstants.tolerance));
     }
 
     public Command setStateCommand(State state) {

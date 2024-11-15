@@ -117,7 +117,7 @@ public class Constants {
         }
     }
 
-    public static final class ShooterJointConstants {
+    public static final class ShooterHoodConstants {
         public static final int ID_MOTOR = 18;
         public static final int ID_ENCODER = 19;
 

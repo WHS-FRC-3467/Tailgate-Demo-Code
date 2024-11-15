@@ -13,6 +13,8 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,16 +25,19 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import frc.robot.subsystems.IntakeJoint.IntakeJointConstants;
+import frc.robot.subsystems.IntakeJoint.IntakeJointConstants.PHConstants;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIO;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIOInputsAutoLogged;
 
 public class IntakeJoint extends SubsystemBase {
 
+      DoubleSolenoid m_intakePiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PHConstants.IntakeForwardSolenoid, PHConstants.IntakeReverseSolenoid);
+
     @RequiredArgsConstructor
     @Getter
     public enum State {
         STOW(0.0),
-        INTAKE(-0.31);
+        INTAKE(-0.5);
 
         private final double output;
     }

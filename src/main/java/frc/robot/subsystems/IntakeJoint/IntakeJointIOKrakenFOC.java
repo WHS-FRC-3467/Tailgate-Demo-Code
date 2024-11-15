@@ -19,6 +19,7 @@ public class IntakeJointIOKrakenFOC implements IntakeJointIO {
     // Hardware
     private final TalonFX m_motor;
 
+
     // Status Signals
 
     private final StatusSignal<Double> m_motorPosition;
@@ -38,7 +39,7 @@ public class IntakeJointIOKrakenFOC implements IntakeJointIO {
 
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
 
-        m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         m_configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         m_configuration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         m_configuration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.35;

@@ -1,9 +1,9 @@
-package frc.robot.subsystems.ShooterJoint;
+package frc.robot.subsystems.ShooterHood;
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
-public class ShooterJointConstants {
+public class ShooterHoodConstants {
     
     public static final double tolerance = Units.degreesToRotations(2);
 
