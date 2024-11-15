@@ -31,8 +31,7 @@ public class IntakeJoint extends SubsystemBase {
     @RequiredArgsConstructor
     @Getter
     public enum State {
-        STOW(-0.05),
-        HOMING(0.0),
+        STOW(0.0),
         INTAKE(-0.31);
 
         private final double output;
@@ -75,7 +74,7 @@ public class IntakeJoint extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("IntakeJoint", inputs);
         if (state == State.STOW && atGoal()) {
-            io.runDutyCycle(0.05);
+            io.runDutyCycle(0.0);
             //m_motor.setControl(m_neutral);
         } 
          else {
