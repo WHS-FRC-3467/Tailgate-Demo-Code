@@ -3,6 +3,8 @@ package frc.robot.subsystems.IntakeJoint;
 import org.littletonrobotics.junction.AutoLog;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+
 public interface IntakeJointIO {
     // MJW: IO Layering 11/11/2024
     @AutoLog
@@ -11,6 +13,7 @@ public interface IntakeJointIO {
         double supplyCurrent = 0.0;
         double position = 0.0;
         double motorVelocity = 0.0;
+        Value m_pistonPosition = Value.kOff;
     }
 
     // Update Inputs

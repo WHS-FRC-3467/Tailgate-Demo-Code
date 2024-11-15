@@ -2,19 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.ElevatorRollers;
+package frc.robot.subsystems.Tower;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ElevatorRollersConstants;
+import frc.robot.subsystems.Tower.TowerConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import frc.robot.subsystems.Tower.TowerIOInputsAutoLogged;
 
-public class ElevatorRollers extends SubsystemBase {
+public class Tower extends SubsystemBase {
 
     @RequiredArgsConstructor
     @Getter
@@ -38,11 +39,11 @@ public class ElevatorRollers extends SubsystemBase {
     //private final NeutralOut m_neutral = new NeutralOut();
 
     //AdvantageKit addition MJW 11/11/2024
-    private final ElevatorRollersIO io;
-    private final ElevatorRollersIOInputsAutoLogged inputs = new ElevatorRollersIOInputsAutoLogged();
+    private final TowerIO io;
+    private final TowerIOInputsAutoLogged inputs = new TowerIOInputsAutoLogged();
 
     /** Creates a new SimpleSubsystem. */
-    public ElevatorRollers(ElevatorRollersIO io) {
+    public Tower(TowerIO io) {
         this.io = io;
         //m_motor.getConfigurator().apply(ElevatorRollersConstants.motorConfig());
     }

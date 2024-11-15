@@ -31,7 +31,7 @@ public class ShooterHoodIOKrakenFOC implements ShooterHoodIO{
     private final StatusSignal<Double> m_motorPosition;
     private final StatusSignal<Double> m_motorVelocity;
     private final StatusSignal<Double> encoderAbsolutePositionRotations;
-  private final StatusSignal<Double> encoderRelativePositionRotations;
+    private final StatusSignal<Double> encoderRelativePositionRotations;
     private final StatusSignal<Double> m_motorAppliedVolts;
     private final StatusSignal<Double> m_motorSupplyCurrent;
     private final StatusSignal<Double> m_motorTorqueCurrent;
@@ -113,7 +113,7 @@ public class ShooterHoodIOKrakenFOC implements ShooterHoodIO{
             500, encoderAbsolutePositionRotations, encoderRelativePositionRotations);
     }
     // Update Inputs
-    public void updateInputs(ShooterJointIOInputs inputs) {
+    public void updateInputs(ShooterHoodIOInputs inputs) {
         inputs.motorVelocity = m_motorVelocity.getValueAsDouble();
         inputs.position = m_motorPosition.getValueAsDouble();
         inputs.positionDegrees = Units.rotationsToDegrees(m_motor.getPosition().getValueAsDouble());

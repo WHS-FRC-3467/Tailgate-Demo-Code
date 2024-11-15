@@ -1,8 +1,8 @@
-package frc.robot.subsystems.ElevatorRollers;
+package frc.robot.subsystems.Tower;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface ElevatorRollersIO {
+public interface TowerIO {
     // MJW: IO Layering 11/11/2024
     @AutoLog
     class ElevatorRollersIOInputs {

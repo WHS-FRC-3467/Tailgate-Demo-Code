@@ -8,7 +8,7 @@ public class ElevatorJointConstants {
 
     public static final Gains gains =
         switch (Constants.currentMode) {
-            case SIM -> new Gains(0, 0, 0, 0, 0, 0, 0); // Need to establish
+            case SIM -> new Gains(2, 0, 0, 0, 0, 0, 0.1); // Need to establish
             case REAL -> new Gains(2, 0, 0, 0, 0, 0, 0.1);
             default -> new Gains(2, 0, 0, 0, 0, 0, 0.1);
         };

@@ -7,6 +7,7 @@ package frc.robot.subsystems.ShooterHood;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterHoodConstants;
+import frc.robot.subsystems.ShooterHood.ShooterHoodIO.ShooterHoodIOInputs;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -31,8 +33,7 @@ public class ShooterHood extends SubsystemBase {
     @Getter
     public enum State {
         STOW(() -> 0.0),
-        SUBWOOFER(() -> 42.0),
-        CLIMBCLEARANCE(() -> 40.0),
+        SUBWOOFER(() -> 10.0),
         DYNAMIC(() -> RobotState.getInstance().getShotAngle()),
         TUNING(() -> RobotState.getInstance().getShooterTuningAngle().get());
 
@@ -57,7 +58,7 @@ public class ShooterHood extends SubsystemBase {
     // private final NeutralOut m_neutral = new NeutralOut();
 
     private final ShooterHoodIO io;
-    private final ShooterJointIOInputsAutoLogged inputs = new ShooterJointIOInputsAutoLogged();
+    private final ShooterHoodIOInputs inputs = new ShooterHoodIOInputs();
 
     public ShooterHood(ShooterHoodIO io) {
         this.io = io;
@@ -68,7 +69,7 @@ public class ShooterHood extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("ShooterHood", inputs);
+        Logger.processInputs("ShooterHood", (LoggableInputs) inputs);
         if (state == State.DYNAMIC) {
             //m_motor.setControl(m_position.withPosition(state.getStateOutput()).withSlot(0));
             io.setPosition(m_position.withPosition(state.getStateOutput()).withSlot(0));

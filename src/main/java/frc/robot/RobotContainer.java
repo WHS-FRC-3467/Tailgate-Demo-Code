@@ -39,10 +39,6 @@ import frc.robot.subsystems.ElevatorJoint.ElevatorJoint;
 import frc.robot.subsystems.ElevatorJoint.ElevatorJointIO;
 import frc.robot.subsystems.ElevatorJoint.ElevatorJointIOKrakenFOC;
 import frc.robot.subsystems.ElevatorJoint.ElevatorJointIOSim;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollers;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIO;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIOKrakenFOC;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIOSim;
 import frc.robot.subsystems.IntakeJoint.IntakeJoint;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIO;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIOKrakenFOC;
@@ -56,6 +52,10 @@ import frc.robot.subsystems.ShooterRollers.ShooterRollers;
 import frc.robot.subsystems.ShooterRollers.ShooterRollersIO;
 import frc.robot.subsystems.ShooterRollers.ShooterRollersIOKrakenFOC;
 import frc.robot.subsystems.ShooterRollers.ShooterRollersIOSim;
+import frc.robot.subsystems.Tower.Tower;
+import frc.robot.subsystems.Tower.TowerIO;
+import frc.robot.subsystems.Tower.TowerIOKrakenFOC;
+import frc.robot.subsystems.Tower.TowerIOSim;
 import frc.robot.subsystems.YSplitRollers.YSplitRollers;
 public class RobotContainer {
 
@@ -78,7 +78,7 @@ public class RobotContainer {
 	public ShooterRollers shooterRollers;
 	public ClimberJoint climberJoint;
 	public ElevatorJoint elevatorJoint;
-	public ElevatorRollers elevatorRollers;
+	public Tower elevatorRollers;
 	public IntakeJoint intakeJoint;
 	public ShooterHood shooterHood;
 		
@@ -151,7 +151,7 @@ public class RobotContainer {
 					shooterRollers = new ShooterRollers(new ShooterRollersIOKrakenFOC());
 					climberJoint = new ClimberJoint(new ClimberJointIOKrakenFOC());
 					elevatorJoint = new ElevatorJoint(new ElevatorJointIOKrakenFOC());
-					elevatorRollers = new ElevatorRollers(new ElevatorRollersIOKrakenFOC());
+					elevatorRollers = new Tower(new TowerIOKrakenFOC());
 					intakeJoint = new IntakeJoint(new IntakeJointIOKrakenFOC());
 					shooterHood = new ShooterHood(new ShooterHoodIOKrakenFOC());
 					break;
@@ -160,7 +160,7 @@ public class RobotContainer {
 					shooterRollers = new ShooterRollers(new ShooterRollersIOSim());
 					climberJoint = new ClimberJoint(new ClimberJointIOSim());
 					elevatorJoint = new ElevatorJoint(new ElevatorJointIOSim());
-					elevatorRollers = new ElevatorRollers(new ElevatorRollersIOSim());
+					elevatorRollers = new Tower(new TowerIOSim());
 					intakeJoint = new IntakeJoint(new IntakeJointIOSim());
 					shooterHood = new ShooterHood(new ShooterHoodIOSim());
 					break;
@@ -184,7 +184,7 @@ public class RobotContainer {
 			shooterHood = new ShooterHood(new ShooterHoodIO() {});
 		}
 		if (elevatorRollers == null) {
-			elevatorRollers = new ElevatorRollers(new ElevatorRollersIO() {});
+			elevatorRollers = new Tower(new TowerIO() {});
 		}
 	
 
@@ -243,7 +243,7 @@ public class RobotContainer {
 										ySplitRollers.setStateCommand(YSplitRollers.State.AMP),
 										intakeRollers.setStateCommand(IntakeRollers.State.INTAKE),
 										elevatorRollers.setStateCommand(
-												ElevatorRollers.State.INTAKE))))
+												Tower.State.INTAKE))))
 						.withInterruptBehavior(InterruptionBehavior.kCancelSelf));
 
 		joystick.rightBumper().and(noteAmp).whileTrue(Commands.startEnd(() -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 1), () -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 0)));
@@ -272,28 +272,6 @@ public class RobotContainer {
 		climbRequest.whileTrue(drivetrain.run(() -> drivetrain.setControllerInput(-joystick.getLeftY()*0.5,
 		-joystick.getLeftX()*0.5, -joystick.getRightX())));
 
-		climbRequest.and(climbStep0).whileTrue(
-				Commands.parallel(
-						shooterHood.setStateCommand(ShooterHood.State.CLIMBCLEARANCE),
-						Commands.waitUntil(() -> shooterHood.atGoal())
-								.andThen(climberJoint.setStateCommand(ClimberJoint.State.PREP))));
-
-		climbRequest.and(climbStep1).whileTrue(
-				Commands.parallel(
-						shooterHood.setStateCommand(ShooterHood.State.CLIMBCLEARANCE),
-						climberJoint.setStateCommand(ClimberJoint.State.CLIMB)));
-
-		climbRequest.and(climbStep2).whileTrue(
-				Commands.parallel(
-						climberJoint.setStateCommand(ClimberJoint.State.CLIMB),
-						shooterHood.setStateCommand(ShooterHood.State.CLIMBCLEARANCE),
-						elevatorJoint.setStateCommand(ElevatorJoint.State.TRAP)));
-		
-		climbRequest.and(climbStep3).whileTrue(
-			Commands.parallel(
-					shooterHood.setStateCommand(ShooterHood.State.CLIMBCLEARANCE),
-					elevatorJoint.setStateCommand(ElevatorJoint.State.TRAP),
-					climberJoint.setStateCommand(ClimberJoint.State.STOW)));
 
 
 		//Score Amp
@@ -302,11 +280,11 @@ public class RobotContainer {
 						Commands.waitUntil(noteAmp.negate()),
 						elevatorJoint.setStateCommand(ElevatorJoint.State.SCORE),
 						Commands.waitUntil(readyToAmp)
-								.andThen(elevatorRollers.setStateCommand(ElevatorRollers.State.SCORE))));
+								.andThen(elevatorRollers.setStateCommand(Tower.State.SCORE))));
 		
 		//Score Trap
 		scoreRequested.and(climbRequest).whileTrue(
-			elevatorRollers.setStateCommand(ElevatorRollers.State.SCORE));
+			elevatorRollers.setStateCommand(Tower.State.SCORE));
 		
 		//Home Mechanisms
 		joystick.povLeft().onTrue(Commands.runOnce(() -> {
@@ -330,7 +308,7 @@ public class RobotContainer {
 		joystick.povDown().whileTrue(Commands.parallel(
 
 						ySplitRollers.setStateCommand(YSplitRollers.State.REVAMP),
-						elevatorRollers.setStateCommand(ElevatorRollers.State.EJECT)));
+						elevatorRollers.setStateCommand(Tower.State.EJECT)));
 
 		joystick.povUp().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative(new Pose2d(1.332, 5.529, new Rotation2d(Math.PI)))));
 
@@ -382,7 +360,6 @@ public class RobotContainer {
 		SmartDashboard.putData("Elevator Homing",Commands.parallel(elevatorJoint.setStateCommand(ElevatorJoint.State.HOMING)));
         SmartDashboard.putData("Climber Homing",Commands.parallel(climberJoint.setStateCommand(ClimberJoint.State.HOMING)));
 		SmartDashboard.putData("Shooter Tuning Angle",Commands.parallel(shooterHood.setStateCommand(ShooterHood.State.TUNING)));
-		SmartDashboard.putData("Shooter Climber Clearance",Commands.parallel(shooterHood.setStateCommand(ShooterHood.State.CLIMBCLEARANCE)));
 		SmartDashboard.putData("Shooter Roller Speaker",
 				Commands.parallel(shooterRollers.setStateCommand(ShooterRollers.State.SPEAKER),
 						robotState.setTargetCommand(TARGET.SPEAKER)));

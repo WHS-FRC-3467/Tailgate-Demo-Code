@@ -1,4 +1,4 @@
-package frc.robot.subsystems.ElevatorRollers;
+package frc.robot.subsystems.Tower;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -14,9 +14,9 @@ import com.google.flatbuffers.Constants;
 import edu.wpi.first.math.util.Units;
 
 import frc.robot.Constants.ElevatorRollersConstants;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIO.ElevatorRollersIOInputs;
+import frc.robot.subsystems.Tower.TowerIO.ElevatorRollersIOInputs;
 
-public class ElevatorRollersIOKrakenFOC implements ElevatorRollersIO{
+public class TowerIOKrakenFOC implements TowerIO{
     // Hardware
     private final TalonFX m_motor;
 
@@ -30,7 +30,7 @@ public class ElevatorRollersIOKrakenFOC implements ElevatorRollersIO{
     private final NeutralOut m_neutral = new NeutralOut();
     private final DutyCycleOut m_duty = new DutyCycleOut(0.0);
 
-    public ElevatorRollersIOKrakenFOC() {
+    public TowerIOKrakenFOC() {
         m_motor = new TalonFX(ElevatorRollersConstants.ID_Motor);
 
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
