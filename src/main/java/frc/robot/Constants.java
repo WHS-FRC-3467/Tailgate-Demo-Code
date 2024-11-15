@@ -41,6 +41,18 @@ public class Constants {
         public static final boolean kIsTuningMode = true;
     }
 
+    public static final class PHConstants{
+
+        public static final int IntakeForwardSolenoid = 0;
+        public static final int IntakeReverseSolenoid = 1;
+        public static final int FixedClimberVerticalSolenoid = 2;
+        public static final int FixedClimberAngledSolenoid = 3;
+        public static final int ExtendingClimberAngledSolenoid = 4;
+        public static final int ExtendingClimberVerticalSolenoid = 5;
+        public static final int HoodForwardSolenoid = 6;
+        public static final int HoodReverseSolenoid = 7;
+    }
+
     public static final class DriveConstants {
         public static final double headingAngleTolerance = 3.0;
         public static final double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed

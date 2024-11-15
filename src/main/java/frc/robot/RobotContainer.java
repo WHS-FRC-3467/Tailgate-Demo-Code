@@ -41,7 +41,7 @@ import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIOKrakenFOC;
 import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIOSim;
 import frc.robot.subsystems.IntakeJoint.IntakeJoint;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIO;
-import frc.robot.subsystems.IntakeJoint.IntakeJointIOKrakenFOC;
+import frc.robot.subsystems.IntakeJoint.IntakeJointIOPneumaticFOC;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIOSim;
 import frc.robot.subsystems.IntakeRollers.IntakeRollers;
 import frc.robot.subsystems.IntakeRollers.IntakeRollersIO;
@@ -95,7 +95,7 @@ public class RobotContainer {
 					shooterRollers = new ShooterRollers(new ShooterRollersIOKrakenFOC());
 					climberJoint = new ClimberJoint(new ClimberJointIOKrakenFOC());
 					elevatorRollers = new ElevatorRollers(new ElevatorRollersIOKrakenFOC());
-					intakeJoint = new IntakeJoint(new IntakeJointIOKrakenFOC());
+					intakeJoint = new IntakeJoint(new IntakeJointIOPneumaticFOC());
 					intakeRollers = new IntakeRollers(new IntakeRollersIOKrakenFOC());
 					break;
 					/* We will include the other subsystems */

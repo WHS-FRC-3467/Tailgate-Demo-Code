@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,36 +33,26 @@ public class IntakeJoint extends SubsystemBase {
     @RequiredArgsConstructor
     @Getter
     public enum State {
-        STOW(-0.05),
-        HOMING(0.0),
-        INTAKE(-0.31);
+        RETRACTED,
+        EXTENDED,
+        OFF;
 
-        private final double output;
     }
 
     @Getter
     @Setter
-    private State state = State.STOW;
+    private State state = State.RETRACTED;
     private final SendableChooser<State> stateChooser = new SendableChooser<>();
     
-
-    //public TalonFX m_motor = new TalonFX(IntakeJointConstants.ID_Motor);
-    private final MotionMagicVoltage m_position = new MotionMagicVoltage(state.getOutput());
-    //private final DutyCycleOut m_duty = new DutyCycleOut(0.0);
-    //private final NeutralOut m_neutral = new NeutralOut();
-
     //AdvantageKit addition MJW 11/11/2024
     private final IntakeJointIO io;
     private final IntakeJointIOInputsAutoLogged inputs = new IntakeJointIOInputsAutoLogged();
 
-    public boolean hasHomed = false;
 
     /** Creates a new ComplexSubsystem. */
     public IntakeJoint(IntakeJointIO io) {
         this.io = io;
-        //m_motor.getConfigurator().apply(IntakeJointConstants.motorConfig());
-        //m_motor.setPosition(-0.0234);
-        io.setPosition(-0.0234);
+
         for (State states : State.values()) {
                 stateChooser.addOption(states.toString(), states);  
         }
@@ -75,47 +66,36 @@ public class IntakeJoint extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("IntakeJoint", inputs);
-/*         if (state == State.STOW && atGoal()) {
-            m_motor.setControl(m_neutral);
-        } else  */
-        if (state == State.HOMING) {
-            //m_motor.setControl(m_duty.withOutput(0.05));
-            io.runDutyCycle(0.05);
 
-            if (inputs.supplyCurrent > IntakeJointConstants.homingCurrent) {
-                //m_motor.setPosition(0.0);
-                io.setPosition(0);
-                System.out.println("HOMED Elevator");
-                this.hasHomed = true;
-                this.state = State.STOW;
-            }
+        if (state == State.RETRACTED) {
+            io.retract();
 
+        } else if (state == State.EXTENDED) {
+            io.deploy();
         } else {
-            //m_motor.setControl(m_position.withPosition(state.getOutput()).withSlot(1));
-            io.setControl(m_position.withPosition(state.getOutput()).withSlot(1));
+            io.stop();
         }
 
         displayInfo(true);
     }
 
     public boolean atGoal() {
-        return MathUtil.isNear(state.getOutput(), inputs.position,
-                IntakeJointConstants.tolerance);
+        return ((inputs.m_pistonPosition == Value.kReverse) && (state == State.EXTENDED)) || 
+                    ((inputs.m_pistonPosition == Value.kForward) && (state == State.RETRACTED)) ||
+                    ((inputs.m_pistonPosition == Value.kOff) && (state == State.OFF));
     }
 
     public Command setStateCommand(State state) {
-        return startEnd(() -> this.state = state, () -> this.state = State.STOW);
+        return startEnd(() -> this.state = state, () -> this.state = State.RETRACTED);
     }
 
     //@AutoLogOutput(key = "IntakeJoint/Info")
     private void displayInfo(boolean debug) {
         if (debug) {
             SmartDashboard.putString(this.getClass().getSimpleName() + " State ", state.toString());
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Setpoint ", state.getOutput());
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Output ", inputs.position);
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw", inputs.supplyCurrent);
+            SmartDashboard.putString(this.getClass().getSimpleName() + " Output ", inputs.m_pistonPosition.toString());
+            // SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw", inputs.supplyCurrent);
             SmartDashboard.putBoolean(this.getClass().getSimpleName() + " atGoal", atGoal());
-            SmartDashboard.putBoolean(this.getClass().getSimpleName() + " has homed", hasHomed);
         }
 
     }
