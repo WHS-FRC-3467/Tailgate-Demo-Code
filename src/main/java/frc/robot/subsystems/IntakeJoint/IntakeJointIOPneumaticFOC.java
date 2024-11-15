@@ -12,27 +12,22 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.util.Units;
-
-import frc.robot.Constants.IntakeJointConstants;
-import frc.robot.Constants.PHConstants;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import frc.robot.Constants.PHConstants;
 
 public class IntakeJointIOPneumaticFOC implements IntakeJointIO {
     // Hardware
-    DoubleSolenoid m_intakePiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PHConstants.IntakeForwardSolenoid, PHConstants.IntakeReverseSolenoid);
+    DoubleSolenoid m_intakePiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, IntakeJointConstants.IntakeForwardSolenoid, IntakeJointConstants.IntakeReverseSolenoid);
 
-    // Status Signals
-
+        // solenoid value that will be updated in periodic
     private Value m_pistonPosition;
-
 
     public IntakeJointIOPneumaticFOC() {
 
-
-        
     }
+
     // Update Inputs
     public void updateInputs(IntakeJointIOInputs inputs) {
         inputs.m_pistonPosition = m_intakePiston.get();
@@ -42,16 +37,16 @@ public class IntakeJointIOPneumaticFOC implements IntakeJointIO {
     // Turn motors to stop the intake pneumatic
     public void stop() {
         m_intakePiston.set(Value.kOff);
-
     }
+
       //deploys intake
     public void deploy(){
         m_intakePiston.set(Value.kReverse);
     } 
+
     //retracts intake  
     public void retract(){
         m_intakePiston.set(Value.kForward);
     }
-
 
 }

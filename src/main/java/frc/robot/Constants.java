@@ -42,7 +42,7 @@ public class Constants {
     }
 
     public static final class PHConstants{
-
+            // Just for reference, these should be put in individual subsystem constants files
         public static final int IntakeForwardSolenoid = 0;
         public static final int IntakeReverseSolenoid = 1;
         public static final int FixedClimberVerticalSolenoid = 2;

@@ -7,6 +7,9 @@ public class IntakeJointConstants {
     public static final double tolerance = Units.degreesToRotations(5);
     public static final double homingCurrent = .5;
 
+    public static final int IntakeForwardSolenoid = 0;
+    public static final int IntakeReverseSolenoid = 1;
+    
     public static final Gains gains =
         switch (Constants.currentMode) {
             case SIM -> new Gains(0, 0, 0, 0, 0, 0);
