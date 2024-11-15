@@ -35,10 +35,6 @@ import frc.robot.subsystems.ClimberJoint.ClimberJoint;
 import frc.robot.subsystems.ClimberJoint.ClimberJointIO;
 import frc.robot.subsystems.ClimberJoint.ClimberJointIOKrakenFOC;
 import frc.robot.subsystems.ClimberJoint.ClimberJointIOSim;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollers;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIO;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIOKrakenFOC;
-import frc.robot.subsystems.ElevatorRollers.ElevatorRollersIOSim;
 import frc.robot.subsystems.IntakeJoint.IntakeJoint;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIO;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIOPneumaticFOC;
@@ -51,6 +47,10 @@ import frc.robot.subsystems.ShooterRollers.ShooterRollers;
 import frc.robot.subsystems.ShooterRollers.ShooterRollersIO;
 import frc.robot.subsystems.ShooterRollers.ShooterRollersIOKrakenFOC;
 import frc.robot.subsystems.ShooterRollers.ShooterRollersIOSim;
+import frc.robot.subsystems.Tower.Tower;
+import frc.robot.subsystems.Tower.TowerIO;
+import frc.robot.subsystems.Tower.TowerIOKrakenFOC;
+import frc.robot.subsystems.Tower.TowerIOSim;
 public class RobotContainer {
 
 	//TODO: test new shooterjoint positional pid
@@ -63,7 +63,7 @@ public class RobotContainer {
 	/* AdvantageKit Setup */
 	public ShooterRollers shooterRollers;
 	public ClimberJoint climberJoint;
-	public ElevatorRollers elevatorRollers;
+	public Tower elevatorRollers;
 	public IntakeJoint intakeJoint;
 	public IntakeRollers intakeRollers;
 		
@@ -94,7 +94,7 @@ public class RobotContainer {
 				case REAL:
 					shooterRollers = new ShooterRollers(new ShooterRollersIOKrakenFOC());
 					climberJoint = new ClimberJoint(new ClimberJointIOKrakenFOC());
-					elevatorRollers = new ElevatorRollers(new ElevatorRollersIOKrakenFOC());
+					elevatorRollers = new Tower(new TowerIOKrakenFOC());
 					intakeJoint = new IntakeJoint(new IntakeJointIOPneumaticFOC());
 					intakeRollers = new IntakeRollers(new IntakeRollersIOKrakenFOC());
 					break;
@@ -102,7 +102,7 @@ public class RobotContainer {
 				case SIM:
 					shooterRollers = new ShooterRollers(new ShooterRollersIOSim());
 					climberJoint = new ClimberJoint(new ClimberJointIOSim());
-					elevatorRollers = new ElevatorRollers(new ElevatorRollersIOSim());
+					elevatorRollers = new Tower(new TowerIOSim());
 					intakeJoint = new IntakeJoint(new IntakeJointIOSim());
 					intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
 					break;
@@ -117,7 +117,7 @@ public class RobotContainer {
 			climberJoint = new ClimberJoint(new ClimberJointIO() {});
 		}
 		if (elevatorRollers == null) {
-			elevatorRollers = new ElevatorRollers(new ElevatorRollersIO() {});
+			elevatorRollers = new Tower(new TowerIO() {});
 		}
 		if (intakeJoint == null) {
 			intakeJoint = new IntakeJoint(new IntakeJointIO() {});
