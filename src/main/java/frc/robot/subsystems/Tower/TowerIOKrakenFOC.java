@@ -84,7 +84,9 @@ public class TowerIOKrakenFOC implements TowerIO{
         inputs.lowerSupplyCurrent = m_lowerSupplyCurrent.getValueAsDouble();
         inputs.upperMotorVoltage = m_upperAppliedVolts.getValueAsDouble();
         inputs.upperSupplyCurrent = m_upperSupplyCurrent.getValueAsDouble();
-        // TODO: update input for beambreaks
+        inputs.lowBeamBreak = m_entryBeamBreak.get();
+        inputs.midBeamBreak = m_midBeamBreak.get();
+        inputs.highBeamBreak = m_upperBeamBreak.get();
     }
 
     // Turn motors to Nuetral Mode

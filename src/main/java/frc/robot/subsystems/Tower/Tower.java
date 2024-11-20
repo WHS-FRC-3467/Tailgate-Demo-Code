@@ -21,15 +21,24 @@ public class Tower extends SubsystemBase {
     @RequiredArgsConstructor
     @Getter
     public enum State {
-        OFF(0.0),
-        SHUFFLEWITHINTAKE(0.0),
-        SHUFFLENOINTAKE(0.75),
-        SHOOT(-0.30);
-
-        private final double output;
+        OFF,
+        INTAKE,
+        SHOOT;
     }
 
-    // Command states
+    @RequiredArgsConstructor
+    @Getter
+    public enum Action {
+        OFF(0.0, 0.0), // doubles are lower tower motor output, upper tower motor output
+        RUNTOWER(20.0, 20.0), // Intaking and If no balls are Top Position yet (BB2)
+        LOWERTOWER(20.0, 0.0), // If intaking and 1 ball is in Top Position
+        SHOOT(0.0, 20.0); // If shooting (only if ball is in Top Position/BB2)
+
+        private final double lowerOutput;
+        private final double upperOutput;
+    }
+
+    // Command actions
     // shuffle bals to the top of tower w/ intake
     // move tower without intake
     // move whole tower (for shooting)
@@ -38,12 +47,12 @@ public class Tower extends SubsystemBase {
     @Getter
     public enum TowerStatus {
         NOBALLS(1,0),
-        ENTRY(2,1),
+        LOWER(2,1),
         MIDDLE(3,1),
         UPPER(4,1),
         MIDDLEANDUPPER(5, 2),
-        ENTRYANDUPPER(6, 2),
-        ENTRYANDMIDDLE(7, 2),
+        LOWERANDUPPER(6, 2),
+        LOWERANDMIDDLE(7, 2),
         ALLBROKEN(8, 3); // All three beambreaks - either three balls or something is wrong
 
         private final int statusNumber;
@@ -53,6 +62,14 @@ public class Tower extends SubsystemBase {
     @Getter
     @Setter
     private State state = State.OFF;
+
+    @Getter
+    @Setter
+    private Action action = Action.OFF;
+
+    @Getter
+    @Setter
+    private TowerStatus status = TowerStatus.NOBALLS;
 
     private boolean debug = true;
 
@@ -74,27 +91,62 @@ public class Tower extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("ElevatorRollers", inputs);
+        getStatus();
         if (state == State.OFF) {
             //m_motor.setControl(m_neutral);
-            io.stop();
-        } else if (state == State.SHUFFLENOINTAKE) {
-            // TODO: Evaluate the tower's status and make it run top/bottom motors based on the tower's status
-            // Make that method in TowerIOKrakenFOC.java
-        } else if (state == State.SHUFFLEWITHINTAKE) {
-            // TODO: Evaluate the tower's status and make it run top/bottom motors based on the tower's status
+            action = Action.OFF;
+        } else if (state == State.INTAKE) {
+                    //Old way: m_motor.setControl(m_percent.withOutput(action.getOutput()));
+            // Intaking: Evaluate the tower's status and make it run top/bottom motors based on the tower's status
+            if ((status == TowerStatus.NOBALLS) || (status == TowerStatus.UPPER) || (status == TowerStatus.MIDDLEANDUPPER)) {
+                action = Action.OFF; 
+                // If there are no balls in the Tower that are below the top beambreak, or if the Tower is Full, stop tower motors
+            } else if ((status == TowerStatus.LOWER) || (status == TowerStatus.MIDDLE) || (status == TowerStatus.LOWERANDMIDDLE)) {
+                action = Action.RUNTOWER; // If there is a ball in the tower but it isn't at the top, then run whole tower.
+            } else if (status == TowerStatus.LOWERANDUPPER) {
+                action = Action.LOWERTOWER; // 1 Ball in Upper, one ball in the bottom of the tower --> need to shuffle it up
+            } else {
+                action = Action.OFF;
+            }
 
+        } else if (state == State.SHOOT) {
+            // If in mode SHOOT, evaluate whether the robot should be shooting
+            if ((status == TowerStatus.MIDDLEANDUPPER) || (status == TowerStatus.UPPER)) {
+                action = Action.SHOOT;
+            } else {
+                action = Action.OFF;
+            }
+        }
+        // Now that the robot knows what to do, let's run the motors (or not)
+        if (action == Action.OFF){
+            io.stop();
         } else {
-            // Shoot! Full Tower Goes!
-            //m_motor.setControl(m_percent.withOutput(state.getOutput()));
-            io.runDutyCycle(state.getOutput());
+            io.runDutyCycle(action.getLowerOutput(), action.getUpperOutput());
         }
 
         displayInfo(debug);
     }
 
     public TowerStatus getStatus() {
-        // TODO: DO The beambreak logic
-        return TowerStatus.NOBALLS;
+        // Does the beambreak logic. Stores it in status for calling on smartdashboard and periodic
+        if ((inputs.lowBeamBreak == false) && (inputs.midBeamBreak == false) && (inputs.highBeamBreak == false)) {
+            status = TowerStatus.NOBALLS;
+        } else if ((inputs.lowBeamBreak == true) && (inputs.midBeamBreak == false) && (inputs.highBeamBreak == false)) {
+            status = TowerStatus.LOWER;
+        } else if ((inputs.lowBeamBreak == false) && (inputs.midBeamBreak == true) && (inputs.highBeamBreak == false)) {
+            status = TowerStatus.MIDDLE;
+        } else if ((inputs.lowBeamBreak == false) && (inputs.midBeamBreak == false) && (inputs.highBeamBreak == true)) {
+            status = TowerStatus.UPPER;
+        } else if ((inputs.lowBeamBreak == false) && (inputs.midBeamBreak == true) && (inputs.highBeamBreak == true)) {
+            status = TowerStatus.MIDDLEANDUPPER;
+        } else if ((inputs.lowBeamBreak == true) && (inputs.midBeamBreak == false) && (inputs.highBeamBreak == true)) {
+            status = TowerStatus.LOWERANDUPPER;
+        } else if ((inputs.lowBeamBreak == true) && (inputs.midBeamBreak == true) && (inputs.highBeamBreak == false)) {
+            status = TowerStatus.LOWERANDMIDDLE;
+        } else {
+            status = TowerStatus.ALLBROKEN;
+        }
+        return status;
     }
 
     public Command setStateCommand(State state) {
@@ -104,15 +156,18 @@ public class Tower extends SubsystemBase {
     //@AutoLogOutput(key = "ElevatorRollers/Info")
     private void displayInfo(boolean debug) {
         if (debug) {
-            SmartDashboard.putString(this.getClass().getSimpleName() + " State ", state.toString());
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Setpoint ", state.getOutput());
+            SmartDashboard.putString(this.getClass().getSimpleName() + " state ", state.toString());
+            SmartDashboard.putString(this.getClass().getSimpleName() + " action ", action.toString());
+            SmartDashboard.putString(this.getClass().getSimpleName() + "  Status ", status.toString());
+            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Lower Setpoint ", action.getLowerOutput());   
+            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Upper Setpoint ", action.getUpperOutput());
+
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Output Lower motor", inputs.lowerMotorVoltage);
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw Lower motor", inputs.lowerSupplyCurrent);
+            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Output Upper motor", inputs.upperMotorVoltage);
+            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw Upper motor", inputs.upperSupplyCurrent);
         }
 
     }
 
-    public int ballCount() {
-        return 0;
-    }
 }

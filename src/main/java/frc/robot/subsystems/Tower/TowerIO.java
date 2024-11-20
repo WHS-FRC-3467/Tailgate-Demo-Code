@@ -11,6 +11,9 @@ public interface TowerIO {
         double lowerMotorVoltage = 0.0;
         double upperSupplyCurrent = 0.0;
         double upperMotorVoltage = 0.0;
+        boolean lowBeamBreak = false;
+        boolean midBeamBreak = false;
+        boolean highBeamBreak = true;
         
         // Beambreak booleans
         boolean m_entryBeam;
@@ -25,5 +28,5 @@ public interface TowerIO {
     default void stop() {}
 
     // Run Duty Cycle
-    default void runDutyCycle(double output) {}
+    default void runDutyCycle(double lowerOutput, double upperOutput) {}
 }
