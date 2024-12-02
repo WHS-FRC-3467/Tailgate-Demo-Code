@@ -14,7 +14,7 @@ import com.google.flatbuffers.Constants;
 import edu.wpi.first.math.util.Units;
 
 import frc.robot.Constants.ElevatorRollersConstants;
-import frc.robot.subsystems.Tower.TowerIO.ElevatorRollersIOInputs;
+import frc.robot.subsystems.Tower.TowerIO.TowerIOInputs;
 
 public class TowerIOKrakenFOC implements TowerIO{
     // Hardware
@@ -63,7 +63,7 @@ public class TowerIOKrakenFOC implements TowerIO{
             );
     }
     // Update Inputs
-    public void updateInputs(ElevatorRollersIOInputs inputs) {
+    public void updateInputs(TowerIOInputs inputs) {
         inputs.motorVoltage = m_motorAppliedVolts.getValueAsDouble();
         inputs.supplyCurrent = m_motorSupplyCurrent.getValueAsDouble();
     }

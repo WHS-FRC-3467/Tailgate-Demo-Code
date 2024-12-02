@@ -5,15 +5,17 @@
 package frc.robot.subsystems.Tower;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.ShooterHood.ShooterHoodIO.ShooterHoodIOInputs;
 import frc.robot.subsystems.Tower.TowerConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import frc.robot.subsystems.Tower.TowerIOInputsAutoLogged;
+import frc.robot.subsystems.Tower.TowerIO.TowerIOInputs;
 
 public class Tower extends SubsystemBase {
 
@@ -28,30 +30,50 @@ public class Tower extends SubsystemBase {
         private final double output;
     }
 
+    @RequiredArgsConstructor
+    @Getter
+    //from Noah
+    public enum TowerStatus {
+        NOBALLS(1,0),
+        LOWER(2,1),
+        MIDDLE(3,1),
+        UPPER(4,1),
+        MIDDLEANDUPPER(5, 2),
+        LOWERANDUPPER(6, 2),
+        LOWERANDMIDDLE(7, 2),   
+        ALLBROKEN(8, 3); 
+        
+
+        private final int statusNumber;
+        private final int numBalls;
+    }
+
+
+
     @Getter
     @Setter
     private State state = State.OFF;
 
     private boolean debug = true;
 
-    //TalonFX m_motor = new TalonFX(ElevatorRollersConstants.ID_Motor);
+    //TalonFX m_motor = new TalonFX(Tower.ID_Motor);
     //private final DutyCycleOut m_percent = new DutyCycleOut(0);
     //private final NeutralOut m_neutral = new NeutralOut();
 
     //AdvantageKit addition MJW 11/11/2024
     private final TowerIO io;
-    private final TowerIOInputsAutoLogged inputs = new TowerIOInputsAutoLogged();
+    private final TowerIOInputs inputs = new TowerIOInputs();
 
     /** Creates a new SimpleSubsystem. */
     public Tower(TowerIO io) {
         this.io = io;
-        //m_motor.getConfigurator().apply(ElevatorRollersConstants.motorConfig());
+        //m_motor.getConfigurator().apply(Tower.motorConfig());
     }
 
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("ElevatorRollers", inputs);
+        Logger.processInputs("Tower", (LoggableInputs) inputs);
         if (state == State.OFF) {
             //m_motor.setControl(m_neutral);
             io.stop();
