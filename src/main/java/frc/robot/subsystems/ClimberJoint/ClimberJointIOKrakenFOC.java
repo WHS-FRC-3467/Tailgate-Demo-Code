@@ -12,27 +12,34 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
-import frc.robot.Constants.ClimberJointConstants;
 
 public class ClimberJointIOKrakenFOC implements ClimberJointIO {
     // Hardware
-    private final TalonFX m_motor;
-    private final TalonFX m_follower;
+    private final TalonFX m_rightLeader;
+    private final TalonFX m_leftFollower;
+
+    DoubleSolenoid m_intakePiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, ClimberJointConstants.IntakeForwardSolenoid, ClimberJointConstants.IntakeReverseSolenoid);
+
+        // solenoid value that will be updated in periodic
+    private Value m_pistonPosition;
 
     // Status Signals
 
-    private final StatusSignal<Double> m_motorPosition;
-    private final StatusSignal<Double> m_motorVelocity;
-    private final StatusSignal<Double> m_motorAppliedVolts;
-    private final StatusSignal<Double> m_motorSupplyCurrent;
-    private final StatusSignal<Double> m_motorTorqueCurrent;
+    private final StatusSignal<Double> m_rightLeaderPosition;
+    private final StatusSignal<Double> m_rightLeaderVelocity;
+    private final StatusSignal<Double> m_rightLeaderAppliedVolts;
+    private final StatusSignal<Double> m_rightLeaderSupplyCurrent;
+    private final StatusSignal<Double> m_rightLeaderTorqueCurrent;
 
-    private final StatusSignal<Double> m_followerPosition;
-    private final StatusSignal<Double> m_followerVelocity;
-    private final StatusSignal<Double> m_followerAppliedVolts;
-    private final StatusSignal<Double> m_followerSupplyCurrent;
-    private final StatusSignal<Double> m_followerTorqueCurrent;
+    private final StatusSignal<Double> m_leftFollowerPosition;
+    private final StatusSignal<Double> m_leftFollowerVelocity;
+    private final StatusSignal<Double> m_leftFollowerAppliedVolts;
+    private final StatusSignal<Double> m_leftFollowerSupplyCurrent;
+    private final StatusSignal<Double> m_leftFollowerTorqueCurrent;
 
     // Control
     private final VelocityVoltage m_velocity = new VelocityVoltage(0).withSlot(1); //Line 50
@@ -41,13 +48,16 @@ public class ClimberJointIOKrakenFOC implements ClimberJointIO {
     private final DutyCycleOut m_duty = new DutyCycleOut(0.0);
 
     public ClimberJointIOKrakenFOC() {
-        m_motor = new TalonFX(ClimberJointConstants.ID_LEADER);
-        m_follower = new TalonFX(ClimberJointConstants.ID_FOLLOWER);
+        m_rightLeader = new TalonFX(ClimberJointConstants.ID_LEADER);
+        m_leftFollower = new TalonFX(ClimberJointConstants.ID_FOLLOWER);
+        // Climber Winch Motors
+        TwinTalonFXMech m_talonMech = new TwinTalonFXMech(ClimberJointConstants.ID_LEADER, ClimberJointConstants.ID_FOLLOWER);
+
 
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
 
         m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        m_configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        m_configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         m_configuration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         m_configuration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 77.6;
         m_configuration.Voltage.PeakForwardVoltage = 12.0;
@@ -80,62 +90,82 @@ public class ClimberJointIOKrakenFOC implements ClimberJointIO {
         m_configuration.CurrentLimits.StatorCurrentLimitEnable = false;
 
         // Apply Configs
-        m_motor.getConfigurator().apply(m_configuration);
-        m_follower.getConfigurator().apply(m_configuration);
-        m_follower.setControl(new Follower(m_motor.getDeviceID(), true));
+        m_rightLeader.getConfigurator().apply(m_configuration);
+        m_leftFollower.getConfigurator().apply(m_configuration);
+        m_leftFollower.setControl(new Follower(m_rightLeader.getDeviceID(), true));
 
         // Set Signals
-        m_motorPosition = m_motor.getPosition();
-        m_motorVelocity = m_motor.getVelocity();
-        m_motorAppliedVolts = m_motor.getMotorVoltage();
-        m_motorSupplyCurrent = m_motor.getSupplyCurrent();
-        m_motorTorqueCurrent = m_motor.getTorqueCurrent();
+        m_rightLeaderPosition = m_rightLeader.getPosition();
+        m_rightLeaderVelocity = m_rightLeader.getVelocity();
+        m_rightLeaderAppliedVolts = m_rightLeader.getMotorVoltage();
+        m_rightLeaderSupplyCurrent = m_rightLeader.getSupplyCurrent();
+        m_rightLeaderTorqueCurrent = m_rightLeader.getTorqueCurrent();
 
-        m_followerPosition = m_follower.getPosition();
-        m_followerVelocity = m_follower.getVelocity();
-        m_followerAppliedVolts = m_follower.getMotorVoltage();
-        m_followerSupplyCurrent = m_follower.getSupplyCurrent();
-        m_followerTorqueCurrent = m_follower.getTorqueCurrent();
+        m_leftFollowerPosition = m_leftFollower.getPosition();
+        m_leftFollowerVelocity = m_leftFollower.getVelocity();
+        m_leftFollowerAppliedVolts = m_leftFollower.getMotorVoltage();
+        m_leftFollowerSupplyCurrent = m_leftFollower.getSupplyCurrent();
+        m_leftFollowerTorqueCurrent = m_leftFollower.getTorqueCurrent();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             100.0,
-            m_motorPosition,
-            m_motorVelocity,
-            m_motorAppliedVolts,
-            m_motorSupplyCurrent,
-            m_motorTorqueCurrent,
-            m_followerPosition,
-            m_followerVelocity,
-            m_followerAppliedVolts,
-            m_followerSupplyCurrent,
-            m_followerTorqueCurrent
+            m_rightLeaderPosition,
+            m_rightLeaderVelocity,
+            m_rightLeaderAppliedVolts,
+            m_rightLeaderSupplyCurrent,
+            m_rightLeaderTorqueCurrent,
+            m_leftFollowerPosition,
+            m_leftFollowerVelocity,
+            m_leftFollowerAppliedVolts,
+            m_leftFollowerSupplyCurrent,
+            m_leftFollowerTorqueCurrent
             );
     }
 
     // Update Inputs
     public void updateInputs(ClimberJointIOInputs inputs) {
-        inputs.motorVelocity = m_motorVelocity.getValueAsDouble();
-        inputs.position = m_motorPosition.getValueAsDouble();
-        inputs.supplyCurrent = m_motorSupplyCurrent.getValueAsDouble();
+        inputs.motorVelocity = m_rightLeaderVelocity.getValueAsDouble();
+        inputs.position = m_rightLeaderPosition.getValueAsDouble();
+        inputs.supplyCurrent = m_rightLeaderSupplyCurrent.getValueAsDouble();
     }
 
     // Turn motors to Nuetral Mode
     public void stop() {
-        m_motor.setControl(m_neutral);
-        m_follower.setControl(m_neutral);
+        m_rightLeader.setControl(m_neutral);
+        m_leftFollower.setControl(m_neutral);
     }
 
     // Run Duty Cycle
     public void runDutyCycle(double output) {
-        m_motor.setControl(m_duty.withOutput(output));
+        m_rightLeader.setControl(m_duty.withOutput(output));
     }
 
     // Move to setpoint
     public void setControl(MotionMagicVoltage goal) {
-        m_motor.setControl(goal.withSlot(1));
+        m_rightLeader.setControl(goal.withSlot(1));
     }
 
     public void setPosition(double goal) {
-        m_motor.setPosition(goal);
+        m_rightLeader.setPosition(goal);
     }
+
+    public boolean calibrate(boolean left) {
+
+		boolean isFinished = false;
+		double current = 0.0;
+		try (TalonFX talon = (left ? m_leftFollower : m_rightLeader)) {
+            current = talon.getStatorCurrent().getValueAsDouble();
+            // SmartDashboard.putNumber("Calib Curr " + (left ? "L: " : "R: "), current);
+            if (current < ClimberJointConstants.kCalibCurrentLimit) {
+            	talon.set(-0.20);
+            	isFinished = false;
+            } else {
+            	talon.set(0.0);
+            	isFinished = true;
+            }
+        }
+
+		return isFinished;
+	}
+
 }

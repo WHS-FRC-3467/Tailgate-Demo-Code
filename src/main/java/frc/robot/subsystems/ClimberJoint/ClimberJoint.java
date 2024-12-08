@@ -26,11 +26,12 @@ public class ClimberJoint extends SubsystemBase {
     public enum State {
 
         STOW(0.0),
-        HOMING(0.0),
-        PREP(50.0),
-        CLIMB(68.0);
+        FIXEDCLIMBERVERTICAL(0.0),
+        FIXEDCLIMBERANGLED(0.0),
+        EXTENDINGCLIMBERANGLED(50.0),
+        EXTENDINGCLIMBERVERTICAL(68.0);
 
-        private final double output;
+        private final double setpoint;
     }
 
     @Getter
@@ -40,7 +41,7 @@ public class ClimberJoint extends SubsystemBase {
     //TalonFX m_motor = new TalonFX(ClimberJointConstants.ID_LEADER);
     //TalonFX m_follower = new TalonFX(ClimberJointConstants.ID_FOLLOWER);
 
-    private final MotionMagicVoltage m_magic = new MotionMagicVoltage(state.getOutput());
+    private final MotionMagicVoltage m_magic = new MotionMagicVoltage(state.getSetpoint());
     //private final DutyCycleOut m_duty = new DutyCycleOut(0.0);
     //private final NeutralOut m_neutral = new NeutralOut();
 
@@ -66,7 +67,7 @@ public class ClimberJoint extends SubsystemBase {
             io.stop();
             //m_motor.setControl(m_neutral);
 
-        } else 
+        /* } else 
         if (state == State.HOMING) {
             //m_motor.setControl(m_duty.withOutput(-0.1));
             io.runDutyCycle(-0.1);
@@ -79,17 +80,17 @@ public class ClimberJoint extends SubsystemBase {
                 this.state = State.STOW;
 
             }
-
+                */
         } else {
             //m_motor.setControl(m_magic.withPosition(state.getOutput()).withSlot(1));
-            io.setControl(m_magic.withPosition(state.getOutput()).withSlot(1));
+            io.setControl(m_magic.withPosition(state.getSetpoint()).withSlot(1));
         }
 
         displayInfo(true);
     }
 
     public boolean atGoal() {
-        return MathUtil.isNear(state.getOutput(), inputs.position,
+        return MathUtil.isNear(state.getSetpoint(), inputs.position,
                 ClimberJointConstants.Tolerance);
     }
 
@@ -103,7 +104,7 @@ public class ClimberJoint extends SubsystemBase {
     private void displayInfo(boolean debug) {
         if (debug) {
             SmartDashboard.putString(this.getClass().getSimpleName() + " State ", state.toString());
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Setpoint ", state.getOutput());
+            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Setpoint ", state.getSetpoint());
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Output ", inputs.position);
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw", inputs.supplyCurrent);
             SmartDashboard.putBoolean(this.getClass().getSimpleName() + " atGoal", atGoal());
