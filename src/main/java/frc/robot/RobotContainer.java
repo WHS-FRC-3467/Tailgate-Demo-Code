@@ -31,10 +31,6 @@ import frc.robot.RobotState.TARGET;
 import frc.robot.Util.LaserCanSensor;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.ClimberJoint.ClimberJoint;
-import frc.robot.subsystems.ClimberJoint.ClimberJointIO;
-import frc.robot.subsystems.ClimberJoint.ClimberJointIOKrakenFOC;
-import frc.robot.subsystems.ClimberJoint.ClimberJointIOSim;
 import frc.robot.subsystems.IntakeJoint.IntakeJoint;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIO;
 import frc.robot.subsystems.IntakeJoint.IntakeJointIOPneumaticFOC;
@@ -62,8 +58,7 @@ public class RobotContainer {
 
 	/* AdvantageKit Setup */
 	public ShooterRollers shooterRollers;
-	public ClimberJoint climberJoint;
-	public Tower elevatorRollers;
+	public Tower tower;
 	public IntakeJoint intakeJoint;
 	public IntakeRollers intakeRollers;
 		
@@ -75,6 +70,9 @@ public class RobotContainer {
 	PhotonGreece photonGreece = new PhotonGreece(drivetrain);
 	Limelight limelight = new Limelight();
 
+	// Triggers stuff
+	private Trigger elevatorFull = new Trigger(() -> tower.getStatus() == Tower.TowerStatus.MIDDLEANDUPPER);
+
 	private SendableChooser<Command> autoChooser;
 
 	private final Telemetry logger = new Telemetry(Constants.DriveConstants.MaxSpeed);
@@ -82,8 +80,7 @@ public class RobotContainer {
 	public RobotContainer() {
 		/* base them on Null before we beform Switch Statement check */
 		shooterRollers = null;
-		climberJoint = null;
-		elevatorRollers = null;
+		tower = null;
 		intakeJoint = null;
 		intakeRollers = null;
 
@@ -93,16 +90,14 @@ public class RobotContainer {
 			switch (Constants.currentMode) {
 				case REAL:
 					shooterRollers = new ShooterRollers(new ShooterRollersIOKrakenFOC());
-					climberJoint = new ClimberJoint(new ClimberJointIOKrakenFOC());
-					elevatorRollers = new Tower(new TowerIOKrakenFOC());
+					tower = new Tower(new TowerIOKrakenFOC());
 					intakeJoint = new IntakeJoint(new IntakeJointIOPneumaticFOC());
 					intakeRollers = new IntakeRollers(new IntakeRollersIOKrakenFOC());
 					break;
 					/* We will include the other subsystems */
 				case SIM:
 					shooterRollers = new ShooterRollers(new ShooterRollersIOSim());
-					climberJoint = new ClimberJoint(new ClimberJointIOSim());
-					elevatorRollers = new Tower(new TowerIOSim());
+					tower = new Tower(new TowerIOSim());
 					intakeJoint = new IntakeJoint(new IntakeJointIOSim());
 					intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
 					break;
@@ -113,11 +108,8 @@ public class RobotContainer {
 		if (shooterRollers == null) {
 			shooterRollers = new ShooterRollers(new ShooterRollersIO() {});
 		}
-		if (climberJoint == null) {
-			climberJoint = new ClimberJoint(new ClimberJointIO() {});
-		}
-		if (elevatorRollers == null) {
-			elevatorRollers = new Tower(new TowerIO() {});
+		if (tower == null) {
+			tower = new Tower(new TowerIO() {});
 		}
 		if (intakeJoint == null) {
 			intakeJoint = new IntakeJoint(new IntakeJointIO() {});
@@ -137,6 +129,13 @@ public class RobotContainer {
 				-joystick.getLeftX(), -joystick.getRightX())));
 
 		drivetrain.registerTelemetry(logger::telemeterize);
+
+		// Intake - Left Trigger
+		joystick.leftTrigger().whileTrue(Commands.deadline(
+			intakeJoint.setStateCommand(IntakeJoint.State.EXTENDED), 
+			intakeRollers.setStateCommand(IntakeRollers.State.INTAKE),
+			tower.setStateCommand(Tower.State.INTAKE),
+			Commands.waitUntil(elevatorFull))); // Trigger that gets this from elevator status
 
 	}
 
