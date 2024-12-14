@@ -13,25 +13,23 @@ import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.util.Units;
 
-import frc.robot.Constants.ShooterRollersConstants;
-
 public class ShooterRollersIOKrakenFOC implements ShooterRollersIO {
     // Hardware
-    private final TalonFX TopTalon;
-    private final TalonFX BottomTalon;
+    private final TalonFX RightTalon;
+    private final TalonFX LeftTalon;
 
     // Status Signals
     
-    private final StatusSignal<Double> topPosition;
-    private final StatusSignal<Double> topVelocity;
-    private final StatusSignal<Double> topAppliedVolts;
-    private final StatusSignal<Double> topSupplyCurrent;
-    private final StatusSignal<Double> topTorqueCurrent;
-    private final StatusSignal<Double> bottomPosition;
-    private final StatusSignal<Double> bottomVelocity;
-    private final StatusSignal<Double> bottomAppliedVolts;
-    private final StatusSignal<Double> bottomSupplyCurrent;
-    private final StatusSignal<Double> bottomTorqueCurrent;
+    private final StatusSignal<Double> RightPosition;
+    private final StatusSignal<Double> RightVelocity;
+    private final StatusSignal<Double> RightAppliedVolts;
+    private final StatusSignal<Double> RightSupplyCurrent;
+    private final StatusSignal<Double> RightTorqueCurrent;
+    private final StatusSignal<Double> LeftPosition;
+    private final StatusSignal<Double> LeftVelocity;
+    private final StatusSignal<Double> LeftAppliedVolts;
+    private final StatusSignal<Double> LeftSupplyCurrent;
+    private final StatusSignal<Double> LeftTorqueCurrent;
     
     // Control
     private final VelocityVoltage m_velocity = new VelocityVoltage(0).withSlot(1); //Line 50
@@ -39,8 +37,8 @@ public class ShooterRollersIOKrakenFOC implements ShooterRollersIO {
     private final VoltageOut voltageControl = new VoltageOut(0).withUpdateFreqHz(0.0);
 
     public ShooterRollersIOKrakenFOC() {
-        BottomTalon = new TalonFX(ShooterRollersConstants.ID_LEADER); // Leader
-        TopTalon = new TalonFX(ShooterRollersConstants.ID_FOLLOWER); // Follower
+        LeftTalon = new TalonFX(ShooterRollersConstants.ID_LEADER); // Leader
+        RightTalon = new TalonFX(ShooterRollersConstants.ID_FOLLOWER); // Follower
         // General Config
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
         m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -49,101 +47,101 @@ public class ShooterRollersIOKrakenFOC implements ShooterRollersIO {
         m_configuration.Voltage.PeakReverseVoltage = -12.0;
 
         m_configuration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        m_configuration.Feedback.SensorToMechanismRatio = 24.0/15.0;
+        m_configuration.Feedback.SensorToMechanismRatio = 24.0/15.0; // TODO: Check shooter wheels sensor to mechanism ratio
 
         m_configuration.Slot0.kP = 1; // output per unit of error in position (output/rotation)
         m_configuration.Slot0.kI = 0; // output per unit of integrated error in position (output/(rotation*s))
         m_configuration.Slot0.kD = 0; // output per unit of error derivative in position (output/rps)
 
         m_configuration.Slot1.kG = 0; // output to overcome gravity (output)
-        m_configuration.Slot1.kS = 0; // output to overcome static friction (output)
+        m_configuration.Slot1.kS = 0.0495; // output to overcome static friction (output)
         m_configuration.Slot1.kV = 0.13; // output per unit of requested velocity (output/rps)
         m_configuration.Slot1.kA = 0; // unused, as there is no target acceleration
-        m_configuration.Slot1.kP = 1; // output per unit of error in position (output/rotation)
-        m_configuration.Slot1.kI = 0; // output per unit of integrated error in position (output/(rotation*s))
-        m_configuration.Slot1.kD = 0; // output per unit of error derivative in position (output/rps)
+        m_configuration.Slot1.kP = 0.1; // output per unit of error in position (output/rotation)
+        m_configuration.Slot1.kI = 0.0001; // output per unit of integrated error in position (output/(rotation*s))
+        m_configuration.Slot1.kD = 5; // output per unit of error derivative in position (output/rps)
 
         m_configuration.MotionMagic.MotionMagicCruiseVelocity = 10;
         m_configuration.MotionMagic.MotionMagicAcceleration = 10;
         m_configuration.MotionMagic.MotionMagicJerk = 10;
 
-        m_configuration.CurrentLimits.SupplyCurrentLimit = 20;
-        m_configuration.CurrentLimits.SupplyCurrentThreshold = 40;
+        m_configuration.CurrentLimits.SupplyCurrentLimit = 60;
+        m_configuration.CurrentLimits.SupplyCurrentThreshold = 80;
         m_configuration.CurrentLimits.SupplyTimeThreshold = 0.1;
         m_configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
         m_configuration.CurrentLimits.StatorCurrentLimit = 70;
         m_configuration.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // Apply Configs
-        BottomTalon.getConfigurator().apply(m_configuration);
-        TopTalon.getConfigurator().apply(m_configuration);
-        TopTalon.setControl(new Follower(BottomTalon.getDeviceID(), true));
+        LeftTalon.getConfigurator().apply(m_configuration);
+        RightTalon.getConfigurator().apply(m_configuration);
+        RightTalon.setControl(new Follower(LeftTalon.getDeviceID(), true));
 
         // Set Signals
-        bottomPosition = BottomTalon.getPosition();
-        bottomVelocity = BottomTalon.getVelocity();
-        bottomAppliedVolts = BottomTalon.getMotorVoltage();
-        bottomSupplyCurrent = BottomTalon.getSupplyCurrent();
-        bottomTorqueCurrent = BottomTalon.getTorqueCurrent();
+        LeftPosition = LeftTalon.getPosition();
+        LeftVelocity = LeftTalon.getVelocity();
+        LeftAppliedVolts = LeftTalon.getMotorVoltage();
+        LeftSupplyCurrent = LeftTalon.getSupplyCurrent();
+        LeftTorqueCurrent = LeftTalon.getTorqueCurrent();
 
-        topPosition = TopTalon.getPosition();
-        topVelocity = TopTalon.getVelocity();
-        topAppliedVolts = TopTalon.getMotorVoltage();
-        topSupplyCurrent = TopTalon.getSupplyCurrent();
-        topTorqueCurrent = TopTalon.getTorqueCurrent();
+        RightPosition = RightTalon.getPosition();
+        RightVelocity = RightTalon.getVelocity();
+        RightAppliedVolts = RightTalon.getMotorVoltage();
+        RightSupplyCurrent = RightTalon.getSupplyCurrent();
+        RightTorqueCurrent = RightTalon.getTorqueCurrent();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             100.0,
-            bottomPosition,
-            bottomVelocity,
-            bottomAppliedVolts,
-            bottomSupplyCurrent,
-            bottomTorqueCurrent,
-            topPosition,
-            topVelocity,
-            topAppliedVolts,
-            topSupplyCurrent,
-            topTorqueCurrent);
+            LeftPosition,
+            LeftVelocity,
+            LeftAppliedVolts,
+            LeftSupplyCurrent,
+            LeftTorqueCurrent,
+            RightPosition,
+            RightVelocity,
+            RightAppliedVolts,
+            RightSupplyCurrent,
+            RightTorqueCurrent);
     }
 
     @Override
     public void updateInputs(ShooterRollersIOInputs inputs) {
-        inputs.topPositionRads = Units.rotationsToRadians(topPosition.getValueAsDouble());
-        inputs.topVelocityRpm = topVelocity.getValueAsDouble() * 60.0;
-        inputs.topAppliedVolts = topAppliedVolts.getValueAsDouble();
-        inputs.topSupplyCurrentAmps = topSupplyCurrent.getValueAsDouble();
-        inputs.topTorqueCurrentAmps = topTorqueCurrent.getValueAsDouble();
+        inputs.RightPositionRads = Units.rotationsToRadians(RightPosition.getValueAsDouble());
+        inputs.RightVelocityRpm = RightVelocity.getValueAsDouble() * 60.0;
+        inputs.RightAppliedVolts = RightAppliedVolts.getValueAsDouble();
+        inputs.RightSupplyCurrentAmps = RightSupplyCurrent.getValueAsDouble();
+        inputs.RightTorqueCurrentAmps = RightTorqueCurrent.getValueAsDouble();
 
-        inputs.bottomPositionRads = Units.rotationsToRadians(bottomPosition.getValueAsDouble());
-        inputs.bottomVelocityRpm = bottomVelocity.getValueAsDouble() * 60.0;
-        inputs.bottomAppliedVolts = bottomAppliedVolts.getValueAsDouble();
-        inputs.bottomSupplyCurrentAmps = bottomSupplyCurrent.getValueAsDouble();
-        inputs.bottomTorqueCurrentAmps = bottomTorqueCurrent.getValueAsDouble();
+        inputs.LeftPositionRads = Units.rotationsToRadians(LeftPosition.getValueAsDouble());
+        inputs.LeftVelocityRpm = LeftVelocity.getValueAsDouble() * 60.0;
+        inputs.LeftAppliedVolts = LeftAppliedVolts.getValueAsDouble();
+        inputs.LeftSupplyCurrentAmps = LeftSupplyCurrent.getValueAsDouble();
+        inputs.LeftTorqueCurrentAmps = LeftTorqueCurrent.getValueAsDouble();
 
         // CURRENTLY USED
-        inputs.motorVelocity = TopTalon.getVelocity().getValueAsDouble();
+        inputs.motorVelocity = RightTalon.getVelocity().getValueAsDouble();
     }
 
     @Override
-    public void runVolts(double topVolts, double bottomVolts) {
-        TopTalon.setControl(voltageControl.withOutput(topVolts));
-        BottomTalon.setControl(voltageControl.withOutput(bottomVolts));
+    public void runVolts(double RightVolts, double LeftVolts) {
+        RightTalon.setControl(voltageControl.withOutput(RightVolts));
+        LeftTalon.setControl(voltageControl.withOutput(LeftVolts));
     }
 
     @Override
     public void stop() {
-        BottomTalon.setControl(m_neutral);
-        TopTalon.setControl(m_neutral);
+        LeftTalon.setControl(m_neutral);
+        RightTalon.setControl(m_neutral);
     }
 
     @Override
     public void runVelocity(double Rpm, double Feedforward) {
-        BottomTalon.setControl(m_velocity.withVelocity(Rpm/60.0).withFeedForward(Feedforward));
-        TopTalon.setControl(m_velocity.withVelocity(Rpm/60.0).withFeedForward(Feedforward));
+        LeftTalon.setControl(m_velocity.withVelocity(Rpm/60.0).withFeedForward(Feedforward));
+        RightTalon.setControl(m_velocity.withVelocity(Rpm/60.0).withFeedForward(Feedforward));
     }
 
     @Override
     public void setPoint(double goalSpeed) {
-        TopTalon.setControl(m_velocity.withVelocity(goalSpeed).withSlot(1)); // create a velocity closed-loop request, voltage output, slot 1 configs
+        RightTalon.setControl(m_velocity.withVelocity(goalSpeed).withSlot(1)); // create a velocity closed-loop request, voltage output, slot 1 configs
     }
 }

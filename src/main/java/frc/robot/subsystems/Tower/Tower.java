@@ -10,8 +10,6 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ElevatorRollersConstants;
-import frc.robot.subsystems.Tower.ElevatorRollersIOInputsAutoLogged;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -30,9 +28,9 @@ public class Tower extends SubsystemBase {
     @Getter
     public enum Action {
         OFF(0.0, 0.0), // doubles are lower tower motor output, upper tower motor output
-        RUNTOWER(20.0, 20.0), // Intaking and If no balls are Top Position yet (BB2)
-        LOWERTOWER(20.0, 0.0), // If intaking and 1 ball is in Top Position
-        SHOOT(0.0, 20.0); // If shooting (only if ball is in Top Position/BB2)
+        RUNTOWER(0.75, 0.75), // Intaking and If no balls are Top Position yet (BB2)
+        LOWERTOWER(1.0, 0.0), // If intaking and 1 ball is in Top Position
+        SHOOT(1.0, 1.0); // If shooting (only if ball is in Top Position/BB2)
 
         private final double lowerOutput;
         private final double upperOutput;
@@ -44,7 +42,6 @@ public class Tower extends SubsystemBase {
     // move whole tower (for shooting)
 
     @RequiredArgsConstructor
-    @Getter
     public enum TowerStatus {
         NOBALLS(1,0),
         LOWER(2,1),

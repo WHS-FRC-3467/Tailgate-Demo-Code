@@ -8,21 +8,21 @@ public interface ShooterRollersIO {
     class ShooterRollersIOInputs {
 
         // Default NOT USED CURRENTLY
-        public double topPositionRads = 0.0;
-        public double topVelocityRpm = 0.0;
-        public double topAppliedVolts = 0.0;
+        public double RightPositionRads = 0.0;
+        public double RightVelocityRpm = 0.0;
+        public double RightAppliedVolts = 0.0;
         //public double topSupplyCurrentAmps = 0.0;
-        public double topTorqueCurrentAmps = 0.0;
+        public double RightTorqueCurrentAmps = 0.0;
 
-        public double bottomPositionRads = 0.0;
-        public double bottomVelocityRpm = 0.0;
-        public double bottomAppliedVolts = 0.0;
-        public double bottomSupplyCurrentAmps = 0.0;
-        public double bottomTorqueCurrentAmps = 0.0;
+        public double LeftPositionRads = 0.0;
+        public double LeftVelocityRpm = 0.0;
+        public double LeftAppliedVolts = 0.0;
+        public double LeftSupplyCurrentAmps = 0.0;
+        public double LeftTorqueCurrentAmps = 0.0;
 
         // USED CURRENTLY
         public double motorVelocity = 0.0;
-        public double topSupplyCurrentAmps = 0.0;
+        public double RightSupplyCurrentAmps = 0.0;
     }
 
     // Update Inputs

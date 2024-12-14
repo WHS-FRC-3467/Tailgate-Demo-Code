@@ -9,7 +9,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.Constants.ElevatorRollersConstants;
 import frc.robot.subsystems.Tower.TowerConstants;
 
 public class TowerIOKrakenFOC implements TowerIO{
@@ -37,8 +36,9 @@ public class TowerIOKrakenFOC implements TowerIO{
     private final DutyCycleOut m_duty = new DutyCycleOut(0.0);
 
     public TowerIOKrakenFOC() {
-        m_lower = new TalonFX(ElevatorRollersConstants.ID_Motor);
-        m_upper = new TalonFX(ElevatorRollersConstants.ID_Motor);
+        // TODO: Replace Tower TalonFX with TalonSRX controllers
+        m_lower = new TalonFX(TowerConstants.LOWER_TOWER_MOTOR);
+        m_upper = new TalonFX(TowerConstants.UPPER_TOWER_MOTOR);
 
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
 
@@ -47,8 +47,8 @@ public class TowerIOKrakenFOC implements TowerIO{
         m_configuration.Voltage.PeakForwardVoltage = 12.0;
         m_configuration.Voltage.PeakReverseVoltage = -12.0;
 
-        m_configuration.CurrentLimits.SupplyCurrentLimit = 20;
-        m_configuration.CurrentLimits.SupplyCurrentThreshold = 40;
+        m_configuration.CurrentLimits.SupplyCurrentLimit = 60;
+        m_configuration.CurrentLimits.SupplyCurrentThreshold = 80;
         m_configuration.CurrentLimits.SupplyTimeThreshold = 0.1;
         m_configuration.CurrentLimits.SupplyCurrentLimitEnable = false;
         m_configuration.CurrentLimits.StatorCurrentLimit = 70;

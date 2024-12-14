@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.SensorConstants;
 import frc.robot.RobotState.TARGET;
 import frc.robot.Util.LaserCanSensor;
 import frc.robot.generated.TunerConstants;
@@ -38,6 +37,10 @@ import frc.robot.subsystems.IntakeJoint.IntakeJointIOSim;
 import frc.robot.subsystems.IntakeRollers.IntakeRollers;
 import frc.robot.subsystems.IntakeRollers.IntakeRollersIO;
 import frc.robot.subsystems.IntakeRollers.IntakeRollersIOKrakenFOC;
+import frc.robot.subsystems.ShooterHood.ShooterHood;
+import frc.robot.subsystems.ShooterHood.ShooterHoodIO;
+import frc.robot.subsystems.ShooterHood.ShooterHoodIOPneumaticFOC;
+import frc.robot.subsystems.ShooterHood.ShooterHoodIOSim;
 import frc.robot.subsystems.IntakeRollers.IntakeRollersIOSim;
 import frc.robot.subsystems.ShooterRollers.ShooterRollers;
 import frc.robot.subsystems.ShooterRollers.ShooterRollersIO;
@@ -49,9 +52,7 @@ import frc.robot.subsystems.Tower.TowerIOKrakenFOC;
 import frc.robot.subsystems.Tower.TowerIOSim;
 public class RobotContainer {
 
-	//TODO: test new shooterjoint positional pid
-	//TODO: change shooter rollers to MMVelocity
-	//TODO: test auto intake
+	// TODO: Tune Drivebase tuner constants on phoenix tuner
 
 	public final Drivetrain drivetrain = TunerConstants.DriveTrain;
 	public final RobotState robotState = RobotState.getInstance();
@@ -61,6 +62,7 @@ public class RobotContainer {
 	public Tower tower;
 	public IntakeJoint intakeJoint;
 	public IntakeRollers intakeRollers;
+	public ShooterHood shooterHood;
 		
 	private final CommandXboxController joystick = new CommandXboxController(0);
 	private final GenericHID rumble = joystick.getHID();
@@ -118,7 +120,9 @@ public class RobotContainer {
 		if (intakeRollers == null) {
 			intakeRollers = new IntakeRollers(new IntakeRollersIO() {});
 		}
-		
+		if (shooterHood == null) {
+			shooterHood = new ShooterHood(new ShooterHoodIO() {});
+		}
 		configureBindings();
 		registerNamedCommands();
 		autoChooser = AutoBuilder.buildAutoChooser();
@@ -137,32 +141,40 @@ public class RobotContainer {
 			intakeRollers.setStateCommand(IntakeRollers.State.INTAKE),
 			tower.setStateCommand(Tower.State.INTAKE),
 			Commands.waitUntil(towerFullTrigger))); // Trigger that gets this from elevator status
+		// If tower is full, let driver know
 		joystick.leftTrigger().and(towerFullTrigger).whileTrue(Commands.startEnd(() -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 1), () -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 0)));
+		// Shuffle balls up tower (no intake)
+		joystick.leftBumper().whileTrue(Commands.deadline(
+			tower.setStateCommand(Tower.State.INTAKE),
+			Commands.waitUntil(towerFullTrigger))); // Trigger that gets this from elevator status
+		// If tower is full, let driver know
+		joystick.leftBumper().and(towerFullTrigger).whileTrue(Commands.startEnd(() -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 1), () -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 0)));
+
 		// Shoot Lower hub
 		joystick.a().whileTrue(Commands.deadline(
 			shooterRollers.setStateCommand(ShooterRollers.State.LOWERHUB),
-			// Set hood subsystem to kForward value
+			shooterHood.setStateCommand(ShooterHood.State.FORWARD),
 			tower.setStateCommand(Tower.State.SHOOT),
 			Commands.waitUntil(towerEmptyTrigger)
 		));
 		// Shoot Upper hub
 		joystick.b().whileTrue(Commands.deadline(
 			shooterRollers.setStateCommand(ShooterRollers.State.UPPERHUB),
-			// Set hood subsystem to kReverse value
+			shooterHood.setStateCommand(ShooterHood.State.REVERSE),	
 			tower.setStateCommand(Tower.State.SHOOT),
 			Commands.waitUntil(towerEmptyTrigger)
 		));
 		// Shoot Tarmac
 		joystick.y().whileTrue(Commands.deadline(
 			shooterRollers.setStateCommand(ShooterRollers.State.TARMAC),
-			// Set hood subsystem to kForward value
+			shooterHood.setStateCommand(ShooterHood.State.FORWARD),	
 			tower.setStateCommand(Tower.State.SHOOT),
 			Commands.waitUntil(towerEmptyTrigger)
 		));
 		// Shoot Launchpad
 		joystick.x().whileTrue(Commands.deadline(
 			shooterRollers.setStateCommand(ShooterRollers.State.LAUNCHPAD),
-			// Set hood subsystem to kForward value
+			shooterHood.setStateCommand(ShooterHood.State.FORWARD),	
 			tower.setStateCommand(Tower.State.SHOOT),
 			Commands.waitUntil(towerEmptyTrigger)
 		));

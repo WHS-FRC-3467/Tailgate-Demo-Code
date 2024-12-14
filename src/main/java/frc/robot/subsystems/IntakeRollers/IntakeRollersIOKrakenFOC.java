@@ -8,8 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import frc.robot.Constants.IntakeRollersConstants;
-
 public class IntakeRollersIOKrakenFOC implements IntakeRollersIO{
     // Hardware
     private final TalonFX m_motor;
@@ -30,7 +28,7 @@ public class IntakeRollersIOKrakenFOC implements IntakeRollersIO{
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
 
         m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        m_configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        m_configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         m_configuration.Voltage.PeakForwardVoltage = 12.0;
         m_configuration.Voltage.PeakReverseVoltage = -12.0;
 

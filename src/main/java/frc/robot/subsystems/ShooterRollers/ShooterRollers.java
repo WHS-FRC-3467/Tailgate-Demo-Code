@@ -6,17 +6,11 @@ package frc.robot.subsystems.ShooterRollers;
 
 import java.util.function.DoubleSupplier;
 
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
-import frc.robot.Constants.ShooterRollersConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,12 +21,12 @@ public class ShooterRollers extends SubsystemBase {
 
     @RequiredArgsConstructor
     @Getter
-    public enum State { // RPS
+    public enum State { // RPM (runVelocity() converts it to rps)
         OFF(() -> 0.0),
-        LAUNCHPAD(() -> 2330/60),
-        TARMAC(() -> 2125/60),
-        UPPERHUB(() -> 1960/60),
-        LOWERHUB(() -> 975/60 + 500/60),
+        LAUNCHPAD(() -> 2330),
+        TARMAC(() -> 2125),
+        UPPERHUB(() -> 1960),
+        LOWERHUB(() -> 975 + 500),
         TUNING(() -> RobotState.getInstance().getShooterTuningSpeed().get());
 
         private final DoubleSupplier velocitySupplier;
@@ -46,9 +40,6 @@ public class ShooterRollers extends SubsystemBase {
     @Setter
     private State state = State.OFF;
 
-    // Initialize motor controllers
-    //TalonFX m_motor = new TalonFX(ShooterRollersConstants.ID_LEADER);   // Can we change this to be Bottom Motor? MJW
-    //TalonFX m_follower = new TalonFX(ShooterRollersConstants.ID_FOLLOWER); // Can we change this to be Top Motor? MJW
     
     //private final VelocityVoltage m_velocity = new VelocityVoltage(0).withSlot(1);
     //private final NeutralOut m_neutral = new NeutralOut();
@@ -93,7 +84,7 @@ public class ShooterRollers extends SubsystemBase {
             SmartDashboard.putString(this.getClass().getSimpleName() + " State ", state.toString());
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Setpoint ", state.getStateOutput());
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Output ", inputs.motorVelocity);
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw", inputs.topSupplyCurrentAmps);
+            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw", inputs.RightSupplyCurrentAmps);
             SmartDashboard.putBoolean(this.getClass().getSimpleName() + " atGoal", atGoal());
         }
         // AdvantageKit Logging

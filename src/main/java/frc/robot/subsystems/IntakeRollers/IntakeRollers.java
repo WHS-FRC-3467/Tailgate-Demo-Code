@@ -6,15 +6,9 @@ package frc.robot.subsystems.IntakeRollers;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.IntakeRollersConstants;
-import frc.robot.subsystems.Tower.ElevatorRollersIOInputsAutoLogged;
-import frc.robot.subsystems.Tower.TowerIO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
