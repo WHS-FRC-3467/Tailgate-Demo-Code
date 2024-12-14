@@ -32,7 +32,7 @@ public class ShooterRollers extends SubsystemBase {
         LAUNCHPAD(() -> 2330/60),
         TARMAC(() -> 2125/60),
         UPPERHUB(() -> 1960/60),
-        LOWERHUB(() -> 975/60),
+        LOWERHUB(() -> 975/60 + 500/60),
         TUNING(() -> RobotState.getInstance().getShooterTuningSpeed().get());
 
         private final DoubleSupplier velocitySupplier;
@@ -72,8 +72,8 @@ public class ShooterRollers extends SubsystemBase {
             //m_motor.setControl(m_neutral);
             io.stop();  //MJW: See the ShooterRollersIO to see all the commands we feed to motors
         } else {
-            goalSpeed = MathUtil.clamp(state.getStateOutput(), ShooterRollersConstants.lowerLimit, ShooterRollersConstants.upperLimit); //TODO:Remove 
-            io.setPoint(goalSpeed);
+            goalSpeed = MathUtil.clamp(state.getStateOutput(), ShooterRollersConstants.lowerLimit, ShooterRollersConstants.upperLimit); //Safety contingency
+            io.runVelocity(goalSpeed, 0);
         }
 
         displayInfo(true);

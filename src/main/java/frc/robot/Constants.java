@@ -193,7 +193,7 @@ public class Constants {
         //RPS
         public static final double upperLimit = 50.0;
         public static final double lowerLimit = -upperLimit;
-        public static final double tolerance = 10;
+        public static final double tolerance = 5;
 
         public static TalonFXConfiguration motorConfig() {
             TalonFXConfiguration m_configuration = new TalonFXConfiguration();
@@ -204,7 +204,7 @@ public class Constants {
             m_configuration.Voltage.PeakReverseVoltage = -12.0;
 
             m_configuration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-            m_configuration.Feedback.SensorToMechanismRatio = 24.0/15.0;
+            m_configuration.Feedback.SensorToMechanismRatio = 24.0/15.0; // TODO: Check Sensor to Mechanism Ratio for Tailgate's shooter wheels
 
             m_configuration.Slot0.kP = 1; // output per unit of error in position (output/rotation)
             m_configuration.Slot0.kI = 0; // output per unit of integrated error in position (output/(rotation*s))

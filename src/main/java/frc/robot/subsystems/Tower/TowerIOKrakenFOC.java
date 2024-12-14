@@ -101,5 +101,4 @@ public class TowerIOKrakenFOC implements TowerIO{
         m_upper.setControl(m_duty.withOutput(upperOutput));
     }
 
-    // TODO: Potentially create methods in TOWER FOC, though I plan to handle the logic in Tower.java
 }

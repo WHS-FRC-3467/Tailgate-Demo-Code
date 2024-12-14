@@ -71,7 +71,8 @@ public class RobotContainer {
 	Limelight limelight = new Limelight();
 
 	// Triggers stuff
-	private Trigger elevatorFull = new Trigger(() -> tower.getStatus() == Tower.TowerStatus.MIDDLEANDUPPER);
+	private Trigger towerFullTrigger = new Trigger(() -> tower.getStatus() == Tower.TowerStatus.MIDDLEANDUPPER);
+	private Trigger towerEmptyTrigger = new Trigger(() -> tower.getStatus() == Tower.TowerStatus.NOBALLS);
 
 	private SendableChooser<Command> autoChooser;
 
@@ -135,8 +136,36 @@ public class RobotContainer {
 			intakeJoint.setStateCommand(IntakeJoint.State.EXTENDED), 
 			intakeRollers.setStateCommand(IntakeRollers.State.INTAKE),
 			tower.setStateCommand(Tower.State.INTAKE),
-			Commands.waitUntil(elevatorFull))); // Trigger that gets this from elevator status
-
+			Commands.waitUntil(towerFullTrigger))); // Trigger that gets this from elevator status
+		joystick.leftTrigger().and(towerFullTrigger).whileTrue(Commands.startEnd(() -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 1), () -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 0)));
+		// Shoot Lower hub
+		joystick.a().whileTrue(Commands.deadline(
+			shooterRollers.setStateCommand(ShooterRollers.State.LOWERHUB),
+			// Set hood subsystem to kForward value
+			tower.setStateCommand(Tower.State.SHOOT),
+			Commands.waitUntil(towerEmptyTrigger)
+		));
+		// Shoot Upper hub
+		joystick.b().whileTrue(Commands.deadline(
+			shooterRollers.setStateCommand(ShooterRollers.State.UPPERHUB),
+			// Set hood subsystem to kReverse value
+			tower.setStateCommand(Tower.State.SHOOT),
+			Commands.waitUntil(towerEmptyTrigger)
+		));
+		// Shoot Tarmac
+		joystick.y().whileTrue(Commands.deadline(
+			shooterRollers.setStateCommand(ShooterRollers.State.TARMAC),
+			// Set hood subsystem to kForward value
+			tower.setStateCommand(Tower.State.SHOOT),
+			Commands.waitUntil(towerEmptyTrigger)
+		));
+		// Shoot Launchpad
+		joystick.x().whileTrue(Commands.deadline(
+			shooterRollers.setStateCommand(ShooterRollers.State.LAUNCHPAD),
+			// Set hood subsystem to kForward value
+			tower.setStateCommand(Tower.State.SHOOT),
+			Commands.waitUntil(towerEmptyTrigger)
+		));
 	}
 
 	private void registerNamedCommands() {
