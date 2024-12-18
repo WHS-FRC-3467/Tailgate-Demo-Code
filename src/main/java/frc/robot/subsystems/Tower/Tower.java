@@ -118,7 +118,7 @@ public class Tower extends SubsystemBase {
         if (action == Action.OFF){
             io.stop();
         } else {
-            io.runDutyCycle(action.getLowerOutput(), action.getUpperOutput());
+            io.runPercentOutput(action.getLowerOutput(), action.getUpperOutput());
         }
 
         displayInfo(debug);
@@ -159,9 +159,7 @@ public class Tower extends SubsystemBase {
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Lower Setpoint ", action.getLowerOutput());   
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Upper Setpoint ", action.getUpperOutput());
 
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Output Lower motor", inputs.lowerMotorVoltage);
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw Lower motor", inputs.lowerSupplyCurrent);
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Output Upper motor", inputs.upperMotorVoltage);
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw Upper motor", inputs.upperSupplyCurrent);
         }
 

@@ -1,5 +1,11 @@
 package frc.robot.subsystems.Tower;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -13,8 +19,8 @@ import frc.robot.subsystems.Tower.TowerConstants;
 
 public class TowerIOKrakenFOC implements TowerIO{
     // Hardware
-    private final TalonFX m_lower;
-    private final TalonFX m_upper;
+    private final TalonSRX m_lower;
+    private final TalonSRX m_upper;
 
     private final DigitalInput m_entryBeamBreak = new DigitalInput(TowerConstants.DIOConstants.EntryBeamBreak);
     private final DigitalInput m_midBeamBreak = new DigitalInput(TowerConstants.DIOConstants.MidTowerBeamBreak);
@@ -22,12 +28,8 @@ public class TowerIOKrakenFOC implements TowerIO{
 
     // Status Signals
     
-    private final StatusSignal<Double> m_lowerAppliedVolts;
-    private final StatusSignal<Double> m_lowerSupplyCurrent;
-    private final StatusSignal<Double> m_lowerTorqueCurrent;
-    private final StatusSignal<Double> m_upperAppliedVolts;
-    private final StatusSignal<Double> m_upperSupplyCurrent;
-    private final StatusSignal<Double> m_upperTorqueCurrent;
+    private final double m_lowerSupplyCurrent;
+    private final double m_upperSupplyCurrent;
 
 
 
@@ -36,54 +38,44 @@ public class TowerIOKrakenFOC implements TowerIO{
     private final DutyCycleOut m_duty = new DutyCycleOut(0.0);
 
     public TowerIOKrakenFOC() {
-        // TODO: Replace Tower TalonFX with TalonSRX controllers
-        m_lower = new TalonFX(TowerConstants.LOWER_TOWER_MOTOR);
-        m_upper = new TalonFX(TowerConstants.UPPER_TOWER_MOTOR);
+        m_lower = new TalonSRX(TowerConstants.LOWER_TOWER_MOTOR);
+        m_upper = new TalonSRX(TowerConstants.UPPER_TOWER_MOTOR);
+
+        m_lower.configPeakCurrentLimit(80, 10); // in (amps, milliseconds to give it time to configure before reporting error)
+        m_upper.configPeakCurrentLimit(80, 10);
 
         TalonFXConfiguration m_configuration = new TalonFXConfiguration();
 
-        m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        m_configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        m_configuration.Voltage.PeakForwardVoltage = 12.0;
-        m_configuration.Voltage.PeakReverseVoltage = -12.0;
-
-        m_configuration.CurrentLimits.SupplyCurrentLimit = 60;
-        m_configuration.CurrentLimits.SupplyCurrentThreshold = 80;
-        m_configuration.CurrentLimits.SupplyTimeThreshold = 0.1;
-        m_configuration.CurrentLimits.SupplyCurrentLimitEnable = false;
-        m_configuration.CurrentLimits.StatorCurrentLimit = 70;
-        m_configuration.CurrentLimits.StatorCurrentLimitEnable = false;
+        SupplyCurrentLimitConfiguration m_config = new SupplyCurrentLimitConfiguration(true, 60, 80, 0.1); // time threshold in seconds
 
         // Apply Configs
-        m_lower.getConfigurator().apply(m_configuration);        
-        m_upper.getConfigurator().apply(m_configuration);
+        m_lower.configSupplyCurrentLimit(m_config, 100);
+        m_upper.configSupplyCurrentLimit(m_config, 100);
 
 
         // Set Signals
-        m_lowerAppliedVolts = m_lower.getMotorVoltage();
         m_lowerSupplyCurrent = m_lower.getSupplyCurrent();
-        m_lowerTorqueCurrent = m_lower.getTorqueCurrent();
-
-        m_upperAppliedVolts = m_upper.getMotorVoltage();
         m_upperSupplyCurrent = m_upper.getSupplyCurrent();
-        m_upperTorqueCurrent = m_upper.getTorqueCurrent();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            100.0,
-            m_lowerAppliedVolts,
-            m_lowerSupplyCurrent,
-            m_lowerTorqueCurrent,
-            m_upperAppliedVolts,
-            m_upperSupplyCurrent,
-            m_upperTorqueCurrent
-            );
+        m_lower.setStatusFramePeriod(StatusFrame.Status_10_MotionMagic, 255);
+        m_lower.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 255);
+        m_lower.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 255);
+        m_lower.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 255);
+        m_lower.setStatusFramePeriod(StatusFrame.Status_17_Targets1, 255);
+        m_lower.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+    
+        m_upper.setStatusFramePeriod(StatusFrame.Status_10_MotionMagic, 255);
+        m_upper.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 255);
+        m_upper.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 255);
+        m_upper.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 255);
+        m_upper.setStatusFramePeriod(StatusFrame.Status_17_Targets1, 255);
+        m_upper.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255);
+
     }
     // Update Inputs
     public void updateInputs(ElevatorRollersIOInputs inputs) {
-        inputs.lowerMotorVoltage = m_lowerAppliedVolts.getValueAsDouble();
-        inputs.lowerSupplyCurrent = m_lowerSupplyCurrent.getValueAsDouble();
-        inputs.upperMotorVoltage = m_upperAppliedVolts.getValueAsDouble();
-        inputs.upperSupplyCurrent = m_upperSupplyCurrent.getValueAsDouble();
+        inputs.lowerSupplyCurrent = m_lowerSupplyCurrent;
+        inputs.upperSupplyCurrent = m_upperSupplyCurrent;
         inputs.lowBeamBreak = m_entryBeamBreak.get();
         inputs.midBeamBreak = m_midBeamBreak.get();
         inputs.highBeamBreak = m_upperBeamBreak.get();
@@ -91,14 +83,15 @@ public class TowerIOKrakenFOC implements TowerIO{
 
     // Turn motors to Nuetral Mode
     public void stop() {
-        m_lower.setControl(m_neutral);
-        m_upper.setControl(m_neutral);
+        m_lower.set(ControlMode.Disabled, 0);
+        m_upper.set(ControlMode.Disabled, 0);
     }
 
     // Run Duty Cycle
-    public void runDutyCycle(double lowerOutput, double upperOutput) {
-        m_lower.setControl(m_duty.withOutput(lowerOutput));
-        m_upper.setControl(m_duty.withOutput(upperOutput));
+    public void runPercentOutput(double lowerOutput, double upperOutput) {
+        // TODO: Check to see if motors run in the correct direction
+        m_lower.set(ControlMode.PercentOutput, lowerOutput);
+        m_upper.set(ControlMode.PercentOutput, upperOutput);
     }
 
 }

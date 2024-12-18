@@ -47,7 +47,6 @@ public class ShooterRollersIOKrakenFOC implements ShooterRollersIO {
         m_configuration.Voltage.PeakReverseVoltage = -12.0;
 
         m_configuration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        m_configuration.Feedback.SensorToMechanismRatio = 24.0/15.0; // TODO: Check shooter wheels sensor to mechanism ratio
 
         m_configuration.Slot0.kP = 1; // output per unit of error in position (output/rotation)
         m_configuration.Slot0.kI = 0; // output per unit of integrated error in position (output/(rotation*s))

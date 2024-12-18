@@ -8,9 +8,7 @@ public interface TowerIO {
     class ElevatorRollersIOInputs {
         // USED CURRENTLY
         double lowerSupplyCurrent = 0.0;
-        double lowerMotorVoltage = 0.0;
         double upperSupplyCurrent = 0.0;
-        double upperMotorVoltage = 0.0;
         boolean lowBeamBreak = false;
         boolean midBeamBreak = false;
         boolean highBeamBreak = true;
@@ -27,6 +25,6 @@ public interface TowerIO {
     // Turn motors to Nuetral Mode
     default void stop() {}
 
-    // Run Duty Cycle
-    default void runDutyCycle(double lowerOutput, double upperOutput) {}
+    // Run Percent Output
+    default void runPercentOutput(double lowerOutput, double upperOutput) {}
 }
