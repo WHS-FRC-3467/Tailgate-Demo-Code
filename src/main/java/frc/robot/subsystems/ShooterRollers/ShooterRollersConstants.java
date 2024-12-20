@@ -8,7 +8,7 @@ public class ShooterRollersConstants {
     public static final int ID_FOLLOWER = 16;
 
     //RPS
-    public static final double upperLimit = 50.0;
+    public static final double upperLimit = 2500.0;
     public static final double lowerLimit = -upperLimit;
     public static final double tolerance = 75/60;
     public static final double kAccelCompFactor = 0.100; // in units of seconds

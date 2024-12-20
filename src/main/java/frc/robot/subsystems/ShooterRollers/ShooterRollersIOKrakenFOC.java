@@ -135,7 +135,7 @@ public class ShooterRollersIOKrakenFOC implements ShooterRollersIO {
     @Override
     public void runVelocity(double Rpm, double Feedforward) {
         //LeftTalon.setControl(m_velocity.withVelocity(Rpm/60.0).withFeedForward(Feedforward));
-        LeftTalon.set(Rpm/100);
+        LeftTalon.set(Rpm/2500);
     }
 
     @Override
