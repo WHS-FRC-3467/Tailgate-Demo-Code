@@ -76,9 +76,9 @@ public class TowerIOKrakenFOC implements TowerIO{
     public void updateInputs(ElevatorRollersIOInputs inputs) {
         inputs.lowerSupplyCurrent = m_lowerSupplyCurrent;
         inputs.upperSupplyCurrent = m_upperSupplyCurrent;
-        inputs.lowBeamBreak = m_entryBeamBreak.get();
-        inputs.midBeamBreak = m_midBeamBreak.get();
-        inputs.highBeamBreak = m_upperBeamBreak.get();
+        inputs.lowBeamBreak = !m_entryBeamBreak.get();
+        inputs.midBeamBreak = !m_midBeamBreak.get();
+        inputs.highBeamBreak = !m_upperBeamBreak.get();
     }
 
     // Turn motors to Nuetral Mode
@@ -89,7 +89,6 @@ public class TowerIOKrakenFOC implements TowerIO{
 
     // Run Duty Cycle
     public void runPercentOutput(double lowerOutput, double upperOutput) {
-        // TODO: Check to see if motors run in the correct direction
         m_lower.set(ControlMode.PercentOutput, lowerOutput);
         m_upper.set(ControlMode.PercentOutput, upperOutput);
     }

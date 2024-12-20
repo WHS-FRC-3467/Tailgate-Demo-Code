@@ -83,7 +83,8 @@ public class ShooterRollers extends SubsystemBase {
         if (debug) {
             SmartDashboard.putString(this.getClass().getSimpleName() + " State ", state.toString());
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Setpoint ", state.getStateOutput());
-            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Output ", inputs.motorVelocity);
+            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Right Output ", inputs.RightVelocityRpm);
+            SmartDashboard.putNumber(this.getClass().getSimpleName() + " Left Output ", inputs.LeftVelocityRpm);
             SmartDashboard.putNumber(this.getClass().getSimpleName() + " Current Draw", inputs.RightSupplyCurrentAmps);
             SmartDashboard.putBoolean(this.getClass().getSimpleName() + " atGoal", atGoal());
         }

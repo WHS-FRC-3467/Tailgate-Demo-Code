@@ -67,6 +67,6 @@ public class IntakeRollersIOKrakenFOC implements IntakeRollersIO{
 
     // Run Duty Cycle
     public void runDutyCycle(double output) {
-        m_motor.setControl(m_duty.withOutput(output));
+        m_motor.setControl(m_duty.withOutput(-output));
     }
 }

@@ -60,9 +60,9 @@ public class ShooterRollersIOKrakenFOC implements ShooterRollersIO {
         m_configuration.Slot1.kI = 0.0001; // output per unit of integrated error in position (output/(rotation*s))
         m_configuration.Slot1.kD = 5; // output per unit of error derivative in position (output/rps)
 
-        m_configuration.MotionMagic.MotionMagicCruiseVelocity = 10;
+        /* m_configuration.MotionMagic.MotionMagicCruiseVelocity = 10;
         m_configuration.MotionMagic.MotionMagicAcceleration = 10;
-        m_configuration.MotionMagic.MotionMagicJerk = 10;
+        m_configuration.MotionMagic.MotionMagicJerk = 10; */
 
         m_configuration.CurrentLimits.SupplyCurrentLimit = 60;
         m_configuration.CurrentLimits.SupplyCurrentThreshold = 80;
@@ -73,6 +73,7 @@ public class ShooterRollersIOKrakenFOC implements ShooterRollersIO {
 
         // Apply Configs
         LeftTalon.getConfigurator().apply(m_configuration);
+                // m_configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         RightTalon.getConfigurator().apply(m_configuration);
         RightTalon.setControl(new Follower(LeftTalon.getDeviceID(), true));
 
@@ -123,24 +124,22 @@ public class ShooterRollersIOKrakenFOC implements ShooterRollersIO {
 
     @Override
     public void runVolts(double RightVolts, double LeftVolts) {
-        RightTalon.setControl(voltageControl.withOutput(RightVolts));
         LeftTalon.setControl(voltageControl.withOutput(LeftVolts));
     }
 
     @Override
     public void stop() {
         LeftTalon.setControl(m_neutral);
-        RightTalon.setControl(m_neutral);
     }
 
     @Override
     public void runVelocity(double Rpm, double Feedforward) {
-        LeftTalon.setControl(m_velocity.withVelocity(Rpm/60.0).withFeedForward(Feedforward));
-        RightTalon.setControl(m_velocity.withVelocity(Rpm/60.0).withFeedForward(Feedforward));
+        //LeftTalon.setControl(m_velocity.withVelocity(Rpm/60.0).withFeedForward(Feedforward));
+        LeftTalon.set(Rpm/100);
     }
 
     @Override
     public void setPoint(double goalSpeed) {
-        RightTalon.setControl(m_velocity.withVelocity(goalSpeed).withSlot(1)); // create a velocity closed-loop request, voltage output, slot 1 configs
+        LeftTalon.setControl(m_velocity.withVelocity(goalSpeed).withSlot(1)); // create a velocity closed-loop request, voltage output, slot 1 configs
     }
 }

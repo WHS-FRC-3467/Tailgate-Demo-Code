@@ -98,7 +98,7 @@ public class Tower extends SubsystemBase {
             if ((status == TowerStatus.NOBALLS) || (status == TowerStatus.UPPER) || (status == TowerStatus.MIDDLEANDUPPER)) {
                 action = Action.OFF; 
                 // If there are no balls in the Tower that are below the top beambreak, or if the Tower is Full, stop tower motors
-            } else if ((status == TowerStatus.LOWER) || (status == TowerStatus.MIDDLE) || (status == TowerStatus.LOWERANDMIDDLE)) {
+            } else if ((status == TowerStatus.LOWER) || (status == TowerStatus.MIDDLE) || (status == TowerStatus.LOWERANDMIDDLE) || (status == TowerStatus.ALLBROKEN)) {
                 action = Action.RUNTOWER; // If there is a ball in the tower but it isn't at the top, then run whole tower.
             } else if (status == TowerStatus.LOWERANDUPPER) {
                 action = Action.LOWERTOWER; // 1 Ball in Upper, one ball in the bottom of the tower --> need to shuffle it up
@@ -108,7 +108,7 @@ public class Tower extends SubsystemBase {
 
         } else if (state == State.SHOOT) {
             // If in mode SHOOT, evaluate whether the robot should be shooting
-            if ((status == TowerStatus.MIDDLEANDUPPER) || (status == TowerStatus.UPPER)) {
+            if ((status == TowerStatus.MIDDLEANDUPPER) || (status == TowerStatus.ALLBROKEN) || (status == TowerStatus.UPPER)) {
                 action = Action.SHOOT;
             } else {
                 action = Action.OFF;

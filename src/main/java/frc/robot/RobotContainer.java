@@ -70,7 +70,7 @@ public class RobotContainer {
 	//Photonvision and Limelight cameras
 	//PhotonVision photonVision = new PhotonVision(drivetrain,0);
 	PhotonGreece photonGreece = new PhotonGreece(drivetrain);
-	Limelight limelight = new Limelight();
+	// Limelight limelight = new Limelight();
 
 	// Triggers stuff
 	private Trigger towerFullTrigger = new Trigger(() -> tower.getStatus() == Tower.TowerStatus.MIDDLEANDUPPER);
@@ -86,6 +86,7 @@ public class RobotContainer {
 		tower = null;
 		intakeJoint = null;
 		intakeRollers = null;
+		shooterHood = null;
 
 		/* Setup according to Which Robot we are using */
 
@@ -96,6 +97,7 @@ public class RobotContainer {
 					tower = new Tower(new TowerIOKrakenFOC());
 					intakeJoint = new IntakeJoint(new IntakeJointIOPneumaticFOC());
 					intakeRollers = new IntakeRollers(new IntakeRollersIOKrakenFOC());
+					shooterHood = new ShooterHood(new ShooterHoodIOPneumaticFOC());
 					break;
 					/* We will include the other subsystems */
 				case SIM:
@@ -103,6 +105,7 @@ public class RobotContainer {
 					tower = new Tower(new TowerIOSim());
 					intakeJoint = new IntakeJoint(new IntakeJointIOSim());
 					intakeRollers = new IntakeRollers(new IntakeRollersIOSim());
+					shooterHood = new ShooterHood(new ShooterHoodIOSim());
 					break;
 			}
 		}
@@ -140,7 +143,8 @@ public class RobotContainer {
 			intakeJoint.setStateCommand(IntakeJoint.State.EXTENDED), 
 			intakeRollers.setStateCommand(IntakeRollers.State.INTAKE),
 			tower.setStateCommand(Tower.State.INTAKE),
-			Commands.waitUntil(towerFullTrigger))); // Trigger that gets this from elevator status
+			Commands.waitUntil(towerFullTrigger))); 
+			// Trigger that gets this from elevator status
 		// If tower is full, let driver know
 		joystick.leftTrigger().and(towerFullTrigger).whileTrue(Commands.startEnd(() -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 1), () -> rumble.setRumble(GenericHID.RumbleType.kBothRumble, 0)));
 		// Shuffle balls up tower (no intake)
@@ -154,7 +158,9 @@ public class RobotContainer {
 		joystick.a().whileTrue(Commands.deadline(
 			shooterRollers.setStateCommand(ShooterRollers.State.LOWERHUB),
 			shooterHood.setStateCommand(ShooterHood.State.FORWARD),
-			tower.setStateCommand(Tower.State.SHOOT),
+			Commands.sequence(
+				Commands.waitUntil(()-> shooterRollers.atGoal()).andThen(
+				tower.setStateCommand(Tower.State.SHOOT))),
 			Commands.waitUntil(towerEmptyTrigger)
 		));
 		// Shoot Upper hub
