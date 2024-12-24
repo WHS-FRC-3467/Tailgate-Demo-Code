@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Util.TunableNumber;
+import frc.robot.Util.LoggedTunableNumber;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -35,12 +35,12 @@ public class RobotState {
     @RequiredArgsConstructor
     @Getter
     public enum TARGET {
-        NONE(null,null),
-        NOTE(null,null), //TODO: Add supplier from LL
-        SUBWOOFER(Constants.FieldConstants.BLUE_SPEAKER,Constants.FieldConstants.RED_SPEAKER),
-        SPEAKER(Constants.FieldConstants.BLUE_SPEAKER,Constants.FieldConstants.RED_SPEAKER),
-        AMP(Constants.FieldConstants.BLUE_AMP,Constants.FieldConstants.RED_AMP),
-        FEED(Constants.FieldConstants.BLUE_FEED,Constants.FieldConstants.RED_FEED);
+        NONE(null, null),
+        NOTE(null, null), // TODO: Add supplier from LL
+        SUBWOOFER(Constants.FieldConstants.BLUE_SPEAKER, Constants.FieldConstants.RED_SPEAKER),
+        SPEAKER(Constants.FieldConstants.BLUE_SPEAKER, Constants.FieldConstants.RED_SPEAKER),
+        AMP(Constants.FieldConstants.BLUE_AMP, Constants.FieldConstants.RED_AMP),
+        FEED(Constants.FieldConstants.BLUE_FEED, Constants.FieldConstants.RED_FEED);
 
         private final Pose2d blueTargetPose;
         private final Pose2d redTargetPose;
@@ -55,16 +55,15 @@ public class RobotState {
     @Setter
     private OptionalDouble angleToNote = OptionalDouble.empty();
 
-    private double deltaT = .15; 
+    private double deltaT = .15;
 
     @Getter
-    TunableNumber shooterTuningAngle = new TunableNumber("Shooter Tuning Angle (deg)",20);
+    LoggedTunableNumber shooterTuningAngle = new LoggedTunableNumber("Shooter Tuning Angle (deg)", 20);
 
     @Getter
-    TunableNumber shooterTuningSpeed = new TunableNumber("Shooter Tuning Speed (rps)",25);
+    LoggedTunableNumber shooterTuningSpeed = new LoggedTunableNumber("Shooter Tuning Speed (rps)", 25);
 
-    TunableNumber autoAimOffset = new TunableNumber("Auto Aim Rotatational Offset (deg)",0);
-
+    LoggedTunableNumber autoAimOffset = new LoggedTunableNumber("Auto Aim Rotatational Offset (deg)", 0);
 
     public static RobotState getInstance() {
         if (instance == null)
@@ -78,18 +77,21 @@ public class RobotState {
             return robotPose.getTranslation();
         } else {
             // Add translation based on current speed and time in the future deltaT
-            return robotPose.getTranslation().plus(new Translation2d(deltaT * robotSpeeds.vxMetersPerSecond, deltaT * robotSpeeds.vyMetersPerSecond));
+            return robotPose.getTranslation().plus(
+                    new Translation2d(deltaT * robotSpeeds.vxMetersPerSecond, deltaT * robotSpeeds.vyMetersPerSecond));
         }
-        
+
     }
 
     public Rotation2d getAngleOfTarget() {
         // Return the angle to allign to target
-        return (DriverStation.getAlliance().get() == Alliance.Blue) ? target.blueTargetPose.getRotation() : target.redTargetPose.getRotation();
+        return (DriverStation.getAlliance().get() == Alliance.Blue) ? target.blueTargetPose.getRotation()
+                : target.redTargetPose.getRotation();
     }
 
     public Rotation2d getAngleToTarget() {
-        return ((DriverStation.getAlliance().get() == Alliance.Blue) ? target.blueTargetPose.getTranslation() : target.redTargetPose.getTranslation())
+        return ((DriverStation.getAlliance().get() == Alliance.Blue) ? target.blueTargetPose.getTranslation()
+                : target.redTargetPose.getTranslation())
                 .minus(getFuturePose())
                 .getAngle()
                 .plus(Rotation2d.fromDegrees(autoAimOffset.get()));
@@ -99,7 +101,8 @@ public class RobotState {
     public double getDistanceToTarget() {
         if (target != TARGET.NONE && target != TARGET.NOTE) {
             return getFuturePose().getDistance(
-                (DriverStation.getAlliance().get() == Alliance.Blue) ? target.blueTargetPose.getTranslation() : target.redTargetPose.getTranslation());
+                    (DriverStation.getAlliance().get() == Alliance.Blue) ? target.blueTargetPose.getTranslation()
+                            : target.redTargetPose.getTranslation());
         } else {
             return -1;
         }
@@ -115,12 +118,12 @@ public class RobotState {
         speakerAngleMap.put(4.02, 14.00);
         speakerAngleMap.put(4.6, 10.50);
         speakerAngleMap.put(4.95, 9.00);
-        speakerAngleMap.put(5.5,8.00);
-        speakerAngleMap.put(6.08,7.00);
+        speakerAngleMap.put(5.5, 8.00);
+        speakerAngleMap.put(6.08, 7.00);
     }
 
     private static final InterpolatingDoubleTreeMap feedOverAngleMap = new InterpolatingDoubleTreeMap();
-    static { //TODO: Tune angles for feeding over stage
+    static { // TODO: Tune angles for feeding over stage
         feedOverAngleMap.put(8.00, 30.0);
         feedOverAngleMap.put(8.42, 28.0);
         feedOverAngleMap.put(9.0, 26.0);
@@ -133,10 +136,10 @@ public class RobotState {
             case SPEAKER:
                 return speakerAngleMap.get(getDistanceToTarget());
             case FEED:
-                if (getDistanceToTarget() < 8) { //TODO: Check this distance
-                    return 0.5; //TODO: Check this angle
+                if (getDistanceToTarget() < 8) { // TODO: Check this distance
+                    return 0.5; // TODO: Check this angle
                 } else {
-                    return feedOverAngleMap.get(getDistanceToTarget()); 
+                    return feedOverAngleMap.get(getDistanceToTarget());
                 }
             default:
                 return 0.0;
